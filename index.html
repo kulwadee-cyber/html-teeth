@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DentiCode — ฝึกรหัสฟัน FDI · ICDAS · DMFT/deft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* ธีม "ม่วงทันตะ" — สีกลาง/ตัวอักษรและปุ่มหลัก (--ink) เป็นม่วงเข้มพรีเมียม สีเน้น (--blue) เป็นม่วงสว่างสำหรับปุ่ม/แท็บ/โฟกัส
+     สีสถานะ (แดง/เขียว/เหลือง) คงเดิมโดยเจตนา เพื่อรักษาความหมายถูก/ผิด/ควรทบทวนให้ชัดเจนไม่ปนกับสีธีม */
+  --paper:#F7F4FB;--sheet:#fff;--ink:#2E2350;--ink2:#5C5273;--rule:#D9D0E6;--rule2:#EEE8F6;
+  --blue:#6F42C1;--blueb:#EFE6FA;--red:#C4262E;--redb:#FBE6E8;--green:#1B7A4B;--greenb:#DFF2E7;--amber:#8A5A00;--amberb:#FFEBB0;
+  --header:#33235B;--headertext:#D9CCEF;--headerline:#8874AD;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.7 "IBM Plex Sans Thai","Sarabun","Noto Sans Thai","Leelawadee UI",Tahoma,sans-serif;font-variant-numeric:tabular-nums}
+h1,h2,h3,h4{line-height:1.35;margin:0}
+p{margin:0 0 .8em}
+b,strong{font-weight:600}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.skip{position:absolute;left:-999px;top:8px;background:#fff;padding:8px 12px;z-index:10}
+.skip:focus{left:8px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+/* header */
+.top{background:var(--header);color:#fff}
+.top .wrap{display:flex;flex-wrap:wrap;gap:14px 32px;align-items:flex-end;justify-content:space-between;padding-top:18px;padding-bottom:18px}
+.brand h1{font-size:22px;font-weight:700;letter-spacing:-.01em}
+.brand p{margin:2px 0 0;font-size:14px;color:var(--headertext)}
+.ctrl{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-end}
+.ctrl label{display:flex;flex-direction:column;font-size:12.5px;color:var(--headertext);gap:2px}
+.ctrl input{font:inherit;font-size:15px;color:var(--ink);background:#fff;border:0;border-radius:5px;padding:6px 10px;min-height:38px;width:190px}
+.ctrl input#in-sid{width:150px}
+.mode{display:flex;border:1.5px solid var(--headerline);border-radius:7px;overflow:hidden}
+.mode button{font:inherit;font-size:14px;font-weight:600;background:transparent;color:var(--headertext);border:0;padding:8px 14px;min-height:38px;cursor:pointer}
+.mode button[aria-pressed="true"]{background:#fff;color:var(--header)}
+.modenote{width:100%;margin:0;font-size:13.5px;color:var(--headertext)}
+
+/* tabs */
+.tabs{background:var(--sheet);border-bottom:1px solid var(--rule)}
+.tabs .wrap{display:flex;gap:2px;overflow-x:auto}
+.tabs button{font:inherit;font-weight:600;background:none;border:0;border-bottom:4px solid transparent;padding:13px 16px 9px;color:var(--ink2);cursor:pointer;white-space:nowrap}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--blue)}
+
+main.wrap{padding-top:28px;padding-bottom:64px}
+.view h2{font-size:26px;font-weight:700;letter-spacing:-.01em;margin-bottom:6px}
+.view h3{font-size:18px;font-weight:700;margin:22px 0 8px}
+.lead{max-width:64ch;color:var(--ink2);margin-bottom:18px}
+.note{font-size:14px;color:var(--ink2)}
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:20px}
+
+/* buttons */
+.btn{font:inherit;font-weight:600;color:var(--ink);background:var(--sheet);border:1.5px solid var(--ink);border-radius:6px;padding:8px 16px;min-height:44px;cursor:pointer}
+.btn:hover{background:var(--blueb)}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.primary:hover{background:#221A3D}
+.btn.quiet{border-color:var(--rule);font-weight:500}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:7px;overflow:hidden;margin-bottom:12px}
+.segbtn{font:inherit;font-weight:600;background:#fff;color:var(--ink);border:0;padding:8px 16px;min-height:42px;cursor:pointer}
+.segbtn[aria-pressed="true"]{background:var(--ink);color:#fff}
+
+/* forms */
+fieldset{border:0;padding:0;margin:0 0 22px}
+legend{font-weight:700;padding:0;margin-bottom:8px}
+.choices{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+label.choice{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1.5px solid var(--rule);border-radius:6px;background:#fff;cursor:pointer}
+label.choice:has(input:checked){border-color:var(--blue);background:var(--blueb)}
+label.choice input{margin-top:6px;accent-color:var(--blue)}
+label.choice small{display:block;color:var(--ink2);font-size:13.5px;line-height:1.45}
+select,input[type=text],input[type=number]{font:inherit;padding:8px 10px;border:1.5px solid var(--ink2);border-radius:6px;background:#fff;color:var(--ink);min-height:44px}
+.msg{color:var(--red);min-height:1.4em;font-size:14.5px}
+.tag{display:inline-block;font-size:12.5px;font-weight:600;padding:0 8px;border-radius:10px;background:var(--rule2);color:var(--ink2);line-height:1.7}
+.tag.D{background:var(--redb);color:var(--red)}
+.tag.M{background:#EAE4F2;color:#4A3F66}
+.tag.F{background:var(--blueb);color:var(--blue)}
+.tag.g{background:var(--greenb);color:var(--green)}
+.tag.b{background:var(--blueb);color:var(--blue)}
+.tag.a{background:var(--amberb);color:var(--amber)}
+.tag.r{background:var(--redb);color:var(--red)}
+
+/* run bar */
+.runbar{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-bottom:8px;font-size:14.5px}
+.bar{flex:1 1 160px;height:8px;background:var(--rule2);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .25s}
+.q{font-size:22px;font-weight:600;margin:12px 0 14px;line-height:1.5}
+.q b{font-weight:700;background:var(--amberb);padding:0 8px;border-radius:4px}
+.hintline{color:var(--ink2);font-size:14.5px;margin:10px 0 0}
+.typed{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-top:14px}
+.typed label{display:flex;flex-direction:column;gap:4px;font-weight:600}
+.typed input{width:120px;font-size:24px;letter-spacing:.3em;text-align:center}
+.opts{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin-top:6px}
+.opt{text-align:left}
+.opt.ok,.codebtn.ok{background:var(--greenb);border-color:var(--green)}
+.opt.bad,.codebtn.bad{background:var(--redb);border-color:var(--red)}
+.fb{padding:12px 16px;border-left:5px solid;border-radius:0 6px 6px 0;margin:14px 0 6px}
+.fb.ok{background:var(--greenb);border-color:var(--green)}
+.fb.bad{background:var(--redb);border-color:var(--red)}
+.why{font-size:14.5px;color:var(--ink2);margin:4px 0 0}
+.big{font-size:19px}
+
+/* chart */
+.chartbox{overflow-x:auto;background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:6px}
+.chartbox svg{display:block;width:100%;min-width:640px;height:auto}
+.chart .axis{stroke:var(--rule);stroke-width:1.2;stroke-dasharray:5 5}
+.chart .side{font-size:12.5px;fill:var(--ink2)}
+.chart .num{font-size:14px;font-weight:600;fill:var(--ink);text-anchor:middle}
+.chart .hint{font-size:26px;font-weight:700;fill:#D3DEE6;text-anchor:middle}
+.chart.nonum .num{display:none}
+.chart.nohint .hint{display:none}
+.chart .gumBack{fill:none;stroke:#E5A8B3;stroke-width:34;stroke-linecap:round;stroke-linejoin:round}
+.chart .gumFront{fill:none;stroke:#F6CBD3;stroke-width:24;stroke-linecap:round;stroke-linejoin:round}
+.tooth{cursor:pointer;outline:none}
+.tooth .hit{fill:transparent}
+.tooth .shape{fill:url(#toothGrad);stroke:var(--ink);stroke-width:1.5;stroke-linejoin:round;transition:fill .12s;filter:drop-shadow(0 1px 1.5px rgba(20,38,58,.2))}
+.tooth .det{fill:none;stroke:var(--ink);stroke-width:1;opacity:.4}
+.tooth.c-0:hover .shape{fill:#EAF1FB}
+.tooth:focus-visible .shape{stroke:var(--blue);stroke-width:3.4}
+.tooth.is-clin .shape{fill:#BFD8F6;stroke:var(--blue);stroke-width:3.4}
+.tooth .ctext{font-size:15px;font-weight:700;text-anchor:middle;dominant-baseline:middle;pointer-events:none;fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:3px}
+.tooth .badge{font-size:20px;font-weight:700;text-anchor:middle;dominant-baseline:middle;pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:4px}
+.tooth .mark{display:none;pointer-events:none}
+.tooth .mark line{stroke:var(--ink);stroke-width:3;stroke-linecap:round}
+.tooth.c-1 .shape{fill:#F6C6CA}
+.tooth.c-2 .shape{fill:url(#grad2)}
+.tooth.c-3 .shape{fill:#CFE0F7}
+.tooth.c-4 .shape{fill:#D5DCE2}
+.tooth.c-5 .shape{fill:#ECEFF2}
+.tooth.c-6 .shape{fill:#CDEBE3}
+.tooth.c-7 .shape{fill:#E3D9F4}
+.tooth.c-8 .shape{fill:#F4F6F8;stroke-dasharray:4 3}
+.tooth.c-9 .shape{fill:url(#hatch9)}
+.tooth.c-T .shape{fill:#FFE4A3}
+.tooth.c-4 .mark,.tooth.c-5 .mark{display:block}
+.tooth.c-8 .det{opacity:.15}
+.tooth.is-target .shape{fill:#FFE7A3;stroke:var(--amber);stroke-width:3}
+.tooth.is-ok .shape{fill:#CDEBD9;stroke:var(--green);stroke-width:3}
+.tooth.is-bad .shape{fill:#F6C6CA;stroke:var(--red);stroke-width:3}
+.tooth.is-sel .shape{stroke:var(--blue);stroke-width:3.6}
+.tooth.r-ok .shape{stroke:var(--green);stroke-width:3.8}
+.tooth.r-bad .shape{stroke:var(--red);stroke-width:3.8}
+.tooth.is-ok .badge,.tooth.r-ok .badge{fill:var(--green)}
+.tooth.is-bad .badge,.tooth.r-bad .badge{fill:var(--red)}
+.infobar{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 20px;padding:12px 4px 0;min-height:64px}
+.bigcode{font-size:44px;font-weight:700;line-height:1;margin:0;letter-spacing:-.02em}
+
+/* layout helpers */
+.cols2{display:grid;gap:28px;grid-template-columns:1fr 1fr;margin-top:8px}
+@media (max-width:820px){.cols2{grid-template-columns:1fr}}
+.tblwrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:15px}
+.tbl th{text-align:left;font-weight:600;color:var(--ink2);border-bottom:2px solid var(--ink);padding:6px 10px;white-space:nowrap}
+.tbl td{border-bottom:1px solid var(--rule2);padding:8px 10px;vertical-align:top}
+.tbl td.c{text-align:center;font-weight:700}
+.tbl tr.badrow td{background:#FDF3F3}
+.formula{border:1.5px solid var(--ink);border-radius:6px;padding:12px 16px;margin:10px 0;background:#fff}
+.formula b{font-size:18px}
+.src{font-size:13.5px;color:var(--ink2);margin-top:22px;max-width:80ch}
+ul.plain{margin:6px 0 10px;padding-left:1.2em}
+ul.plain li{margin:3px 0}
+
+/* code palette */
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:8px}
+.codebtn{font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:66px;padding:6px;background:#fff;border:1.5px solid var(--ink);border-radius:6px;cursor:pointer;color:var(--ink)}
+.codebtn:hover{background:var(--blueb)}
+.codebtn[aria-pressed="true"]{outline:3px solid var(--blue);outline-offset:1px}
+.codebtn .cd{min-width:38px;text-align:center;font-size:22px;font-weight:700;line-height:1.35;border-radius:4px;padding:0 8px;background:var(--sw,#fff)}
+.codebtn .cl{font-size:12.5px;color:var(--ink2);text-align:center;line-height:1.25}
+.codebtn[data-c="1"]{--sw:#F6C6CA}
+.codebtn[data-c="2"]{--sw:linear-gradient(90deg,#F6C6CA 50%,#CFE0F7 50%)}
+.codebtn[data-c="3"]{--sw:#CFE0F7}
+.codebtn[data-c="4"]{--sw:#D5DCE2}
+.codebtn[data-c="5"]{--sw:#ECEFF2}
+.codebtn[data-c="6"]{--sw:#CDEBE3}
+.codebtn[data-c="7"]{--sw:#E3D9F4}
+.codebtn[data-c="8"]{--sw:#F4F6F8}
+.codebtn[data-c="9"]{--sw:repeating-linear-gradient(45deg,#fff 0 3px,#B7C1CA 3px 5px)}
+.codebtn[data-c="T"]{--sw:#FFE4A3}
+.casetext{font-size:19px;line-height:1.7;background:#fff;border:1px solid var(--rule);border-left:5px solid var(--ink);border-radius:0 8px 8px 0;padding:14px 18px;margin:8px 0 14px}
+
+/* cases */
+.caselist{display:grid;gap:10px}
+.dict{columns:2 330px;column-gap:28px;margin:8px 0 6px;padding-left:1.5em}
+.dict li{break-inside:avoid;margin:0 0 8px}
+.calc{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-end;margin:16px 0 6px}
+.calc label{display:flex;flex-direction:column;gap:2px;font-weight:600}
+.calc input{width:96px;font-size:20px;text-align:center}
+.selbar{margin:12px 0 4px;min-height:1.7em}
+
+/* results */
+.meter{height:10px;background:var(--rule2);border-radius:5px;overflow:hidden;min-width:120px}
+.meter i{display:block;height:100%;background:var(--blue)}
+.meter.g i{background:var(--green)}
+.meter.a i{background:#C48A16}
+.meter.r i{background:var(--red)}
+.legend{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink2);margin:8px 0}
+.legend i{display:inline-block;width:150px;height:10px;border-radius:5px;background:linear-gradient(90deg,hsl(0,55%,72%),hsl(65,55%,72%),hsl(130,55%,72%))}
+.copybox{width:100%;min-height:150px;font:inherit;font-size:14px;padding:10px;border:1.5px solid var(--rule);border-radius:6px;background:#fff;color:var(--ink)}
+.empty{padding:28px;border:1.5px dashed var(--rule);border-radius:8px;background:#fff}
+
+/* ICDAS study guide */
+.stagehead{margin:26px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--rule)}
+.stagehead .tag{margin-left:8px}
+.guidegrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:8px}
+.guidecard{background:#fff;border:1.5px solid var(--rule);border-radius:10px;padding:14px 16px;scroll-margin-top:16px;transition:box-shadow .2s,border-color .2s}
+.guidecard .gc-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.guidecard .gc-code{font-size:26px;font-weight:700;line-height:1;color:var(--ink)}
+.guidecard .gc-name{font-weight:600}
+.guidecard p{margin:0;font-size:15px;color:var(--ink2)}
+.guidecard mark{background:var(--amberb);color:var(--amber);padding:0 3px;border-radius:3px;font-weight:600;box-decoration-break:clone}
+.guidecard.flash{border-color:var(--blue);box-shadow:0 0 0 4px var(--blueb)}
+.linklike{font:inherit;font-size:13.5px;background:none;border:0;padding:0;color:var(--blue);text-decoration:underline;cursor:pointer}
+
+footer{border-top:1px solid var(--rule);color:var(--ink2);font-size:13.5px}
+footer .wrap{padding-top:16px;padding-bottom:28px}
+@media (max-width:640px){
+  .view h2{font-size:22px}
+  .q{font-size:19px}
+  .ctrl input,.ctrl input#in-sid{width:100%}
+  .ctrl label{flex:1 1 140px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{
+  .top .ctrl,.tabs,.noprint,footer,.skip{display:none!important}
+  body{background:#fff}
+  .sheet,.chartbox{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <pattern id="hatch9" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="6" height="6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="6" stroke="#8B98A5" stroke-width="2"/>
+    </pattern>
+    <linearGradient id="grad2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#F6C6CA"/><stop offset="0.5" stop-color="#F6C6CA"/>
+      <stop offset="0.5" stop-color="#CFE0F7"/><stop offset="1" stop-color="#CFE0F7"/>
+    </linearGradient>
+    <linearGradient id="toothGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.55" stop-color="#F8F4E9"/>
+      <stop offset="1" stop-color="#ECE2CE"/>
+    </linearGradient>
+  </defs>
+</svg>
+<a class="skip" href="#main">ข้ามไปยังเนื้อหา</a>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <h1>DentiCode<span style="font-weight:500;opacity:.85"> · ฝึกรหัสฟัน FDI และดัชนี DMFT/deft</span></h1>
+      <p>ฝึกตาให้ไว ฝึกมือให้แม่น ก่อนลงตรวจจริง — สำหรับนักศึกษาทันตกรรมและพยาบาล</p>
+    </div>
+    <div class="ctrl">
+      <label>ชื่อ–สกุล<input id="in-name" type="text" autocomplete="name"></label>
+      <label>รหัสนักศึกษา<input id="in-sid" type="text" inputmode="numeric" autocomplete="off"></label>
+      <div class="mode" role="group" aria-label="โหมดการใช้งาน">
+        <button type="button" data-mode="practice" aria-pressed="false">โหมดฝึก</button>
+        <button type="button" data-mode="assess" aria-pressed="true">โหมดประเมิน</button>
+      </div>
+    </div>
+    <p class="modenote" id="mode-note"></p>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="เมนูหลัก">
+  <div class="wrap" role="tablist">
+    <button role="tab" data-view="intro" aria-selected="true">อ่านก่อนเริ่ม</button>
+    <button role="tab" data-view="fdi" aria-selected="false">ฝึกรหัส FDI</button>
+    <button role="tab" data-view="guide" aria-selected="false">คู่มือ ICDAS</button>
+    <button role="tab" data-view="code" aria-selected="false">รหัสสภาพฟัน</button>
+    <button role="tab" data-view="clinic" aria-selected="false">เคสคลินิก</button>
+    <button role="tab" data-view="case" aria-selected="false">กรณีศึกษา</button>
+    <button role="tab" data-view="result" aria-selected="false">สรุปผล</button>
+  </div>
+</nav>
+
+<main class="wrap" id="main">
+
+<!-- ================= อ่านก่อนเริ่ม ================= -->
+<section id="view-intro" class="view" aria-labelledby="h-intro">
+  <h2 id="h-intro">เริ่มจากทำความรู้จักแผนภาพฟัน</h2>
+  <p class="lead">แตะซี่ฟันเพื่อดูรหัส FDI และชื่อฟัน เมื่อคุ้นแล้วให้เลือกแบบฝึกจากแถบด้านบน โหมดประเมินจะซ่อนตัวช่วยและบันทึกผลไว้ในหน้าสรุปผล</p>
+  <div class="seg" role="group" aria-label="เลือกชุดฟัน">
+    <button class="segbtn" type="button" data-dent="perm" aria-pressed="true">ฟันแท้ 11–48</button>
+    <button class="segbtn" type="button" data-dent="prim" aria-pressed="false">ฟันน้ำนม 51–85</button>
+  </div>
+  <div class="chartbox" id="intro-chart"></div>
+  <div class="infobar" id="intro-info" aria-live="polite"></div>
+
+  <div class="cols2">
+    <div>
+      <h3>อ่านรหัส <b>FDI</b> อย่างไร</h3>
+      <p><b>รหัส FDI มี 2 หลัก:</b></p>
+      <ul class="plain">
+        <li><b>หลักแรก</b> บอก <i>ควอดแรนท์</i> (จตุภาคของขากรรไกร)</li>
+        <li><b>หลักหลัง</b> บอกชนิดของฟัน — <i>นับจากเส้นกึ่งกลางใบหน้าออกไปทางด้านหลัง</i></li>
+        <li><b>ฟันแท้:</b> 1 บนขวา · 2 บนซ้าย · 3 ล่างซ้าย · 4 ล่างขวา</li>
+        <li><b>ฟันน้ำนม:</b> 5 บนขวา · 6 บนซ้าย · 7 ล่างซ้าย · 8 ล่างขวา</li>
+        <li><b>ข้อควรระวัง:</b> <i>ซ้าย–ขวาคือของผู้ป่วยเสมอ</i> ผู้ตรวจที่หันหน้าเข้าหาผู้ป่วยจะเห็นด้านขวาของผู้ป่วยอยู่ทางซ้ายมือ</li>
+      </ul>
+      <div class="tblwrap">
+        <table class="tbl">
+          <thead><tr><th>ลำดับ</th><th>ฟันแท้</th><th>ฟันน้ำนม</th></tr></thead>
+          <tbody>
+            <tr><td class="c">1</td><td>ฟันตัดซี่กลาง</td><td>ฟันตัดซี่กลาง</td></tr>
+            <tr><td class="c">2</td><td>ฟันตัดซี่ข้าง</td><td>ฟันตัดซี่ข้าง</td></tr>
+            <tr><td class="c">3</td><td>ฟันเขี้ยว</td><td>ฟันเขี้ยว</td></tr>
+            <tr><td class="c">4</td><td>ฟันกรามน้อยซี่ที่ 1</td><td>ฟันกรามน้ำนมซี่ที่ 1</td></tr>
+            <tr><td class="c">5</td><td>ฟันกรามน้อยซี่ที่ 2</td><td>ฟันกรามน้ำนมซี่ที่ 2</td></tr>
+            <tr><td class="c">6</td><td>ฟันกรามซี่ที่ 1</td><td>ไม่มี</td></tr>
+            <tr><td class="c">7</td><td>ฟันกรามซี่ที่ 2</td><td>ไม่มี</td></tr>
+            <tr><td class="c">8</td><td>ฟันกรามซี่ที่ 3</td><td>ไม่มี</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h3>รหัสสภาพตัวฟัน (ฟันแท้)</h3>
+      <div class="tblwrap"><table class="tbl" id="code-table"></table></div>
+      <div class="formula">
+        <p style="margin:0 0 4px"><b>DMFT = D + M + F</b></p>
+        <p class="note" style="margin:0"><b>D</b> = ซี่ที่ลงรหัส 1 และ 2 · <b>M</b> = รหัส 4 · <b>F</b> = รหัส 3<br>รหัส 0, 5, 6, 7, 8, 9 และ T <i>ไม่นับรวม</i>ในดัชนี</p>
+        <p class="note" style="margin:6px 0 0">ต้องการเกณฑ์ประเมินความรุนแรงของฟันผุแบบละเอียดกว่านี้ ดูที่แท็บ <i>คู่มือ ICDAS</i></p>
+      </div>
+    </div>
+  </div>
+  <p class="src">ตารางรหัสอ้างอิงจากคู่มือ WHO Oral Health Surveys: Basic Methods (พิมพ์ครั้งที่ 5, ค.ศ. 2013) หากรายวิชาหรือหน่วยงานของท่านใช้เกณฑ์ที่ต่างออกไป ให้ยึดเกณฑ์ของรายวิชาเป็นหลัก ผลการทำแบบฝึกเก็บไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น การส่งผลให้ผู้สอนทำได้จากหน้าสรุปผล</p>
+</section>
+
+<!-- ================= FDI ================= -->
+<section id="view-fdi" class="view" aria-labelledby="h-fdi" hidden>
+  <div id="fdi-setup">
+    <h2 id="h-fdi">ฝึกรหัสฟัน FDI</h2>
+    <p class="lead">วัดความแม่นยำในการแปลงระหว่างรหัส ชื่อฟัน และตำแหน่งบนแผนภาพ ระบบจะจำแนกด้วยว่าข้อที่ผิดเกิดจากการสลับซ้าย–ขวา สลับบน–ล่าง หรือนับลำดับซี่ผิด</p>
+    <form id="fdi-form" class="sheet">
+      <fieldset>
+        <legend>ชุดฟัน</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="dent" value="perm" checked><span>ฟันแท้ (11–48)<small>32 ซี่ เป็นชุดที่ใช้ในการสำรวจ DMFT</small></span></label>
+          <label class="choice"><input type="radio" name="dent" value="prim"><span>ฟันน้ำนม (51–85)<small>20 ซี่ ควอดแรนท์ 5–8</small></span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>รูปแบบคำถาม</legend>
+        <div class="choices">
+          <label class="choice"><input type="checkbox" name="ft" value="c2k" checked><span>รหัส → คลิกตำแหน่ง<small>โจทย์บอกรหัส ให้คลิกซี่ฟันบนแผนภาพ</small></span></label>
+          <label class="choice"><input type="checkbox" name="ft" value="n2k" checked><span>ชื่อฟัน → คลิกตำแหน่ง<small>โจทย์บอกชื่อและตำแหน่ง เช่น ฟันเขี้ยวบนซ้าย</small></span></label>
+          <label class="choice"><input type="checkbox" name="ft" value="k2c" checked><span>ตำแหน่ง → พิมพ์รหัส<small>ซี่ฟันถูกไฮไลต์ ให้พิมพ์รหัส 2 หลัก</small></span></label>
+          <label class="choice"><input type="checkbox" name="ft" value="c2n" checked><span>รหัส → ชื่อฟันและตำแหน่ง<small>เลือกคำตอบจาก 4 ตัวเลือก</small></span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>จำนวนข้อ</legend>
+        <select name="n" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="20" selected>20 ข้อ</option><option value="30">30 ข้อ</option></select>
+      </fieldset>
+      <p class="msg" id="fdi-formmsg" role="alert"></p>
+      <button class="btn primary" type="submit">เริ่มทำแบบฝึก</button>
+    </form>
+  </div>
+
+  <div id="fdi-run" hidden>
+    <div class="runbar">
+      <span id="fdi-prog"></span>
+      <div class="bar"><i id="fdi-bar"></i></div>
+      <span id="fdi-acc"></span>
+      <label id="fdi-help" class="note" hidden><input type="checkbox" id="fdi-shownum"> แสดงเลขฟันและควอดแรนท์</label>
+      <button class="btn quiet" type="button" id="fdi-quit">ออก</button>
+    </div>
+    <p class="q" id="fdi-q"></p>
+    <div class="chartbox" id="fdi-chart"></div>
+    <div id="fdi-answer"></div>
+    <div id="fdi-fb" aria-live="polite"></div>
+    <div class="row"><button class="btn primary" type="button" id="fdi-next" hidden>ข้อต่อไป</button></div>
+  </div>
+
+  <div id="fdi-done" hidden></div>
+</section>
+
+<!-- ================= คู่มือ ICDAS ================= -->
+<section id="view-guide" class="view" aria-labelledby="h-guide" hidden>
+  <h2 id="h-guide">สรุปเนื้อหา ICDAS (Study Guide)</h2>
+  <p class="lead">เกณฑ์ ICDAS (International Caries Detection and Assessment System) ประเมินด้วยสายตาและการสัมผัสอย่างแผ่วเบาบนผิวฟันที่สะอาดและแห้งสนิท แบ่งความรุนแรงของฟันผุออกเป็น 7 ระดับ (รหัส 0 ถึง 6) อ่านทบทวนหน้านี้ก่อนเข้าทำแบบฝึก “รหัสสภาพฟัน”</p>
+  <div id="guide-body"></div>
+  <p class="src">อ้างอิงเกณฑ์ ICDAS และ International Caries Classification and Management System (ICCMS) — หากรายวิชาหรือหน่วยงานของท่านใช้เกณฑ์ที่ต่างออกไป ให้ยึดเกณฑ์ของรายวิชาเป็นหลัก</p>
+</section>
+
+<!-- ================= รหัสสภาพฟัน ================= -->
+<section id="view-code" class="view" aria-labelledby="h-code" hidden>
+  <div id="code-setup">
+    <h2 id="h-code">รหัสสภาพฟัน (ICDAS)</h2>
+    <p class="lead">อ่านสถานการณ์คนไข้จริง ซี่ฟันที่ตรวจพบจะถูกไฮไลต์บนแผนภาพ แล้วเลือกรหัสความรุนแรงของฟันผุตามเกณฑ์ ICDAS (0–6) จาก 4 ตัวเลือก โจทย์ผสมฟันแท้และฟันน้ำนม แนะนำให้อ่าน <button type="button" class="linklike" data-go="guide">คู่มือ ICDAS</button> ก่อนเริ่มทำ</p>
+    <form id="code-form" class="sheet">
+      <fieldset>
+        <legend>จำนวนข้อ</legend>
+        <select name="cn" aria-label="จำนวนข้อ"><option value="10">10 ข้อ</option><option value="20" selected>20 ข้อ</option><option value="28">ทั้งหมด 28 ข้อ</option></select>
+      </fieldset>
+      <button class="btn primary" type="submit">เริ่มทำแบบฝึก</button>
+    </form>
+  </div>
+  <div id="code-run" hidden>
+    <div class="runbar">
+      <span id="code-prog"></span>
+      <div class="bar"><i id="code-bar"></i></div>
+      <span id="code-acc"></span>
+      <button class="btn quiet" type="button" id="code-quit">ออก</button>
+    </div>
+    <p class="casetext" id="code-text"></p>
+    <div class="chartbox" id="code-chart"></div>
+    <div class="opts" id="code-pal" role="group" aria-label="ตัวเลือกรหัส ICDAS"></div>
+    <div id="code-fb" aria-live="polite"></div>
+    <div class="row"><button class="btn primary" type="button" id="code-next" hidden>ข้อต่อไป</button></div>
+  </div>
+  <div id="code-done" hidden></div>
+</section>
+
+<!-- ================= เคสคลินิก ================= -->
+<section id="view-clinic" class="view" aria-labelledby="h-clinic" hidden>
+  <div id="clinic-setup">
+    <h2 id="h-clinic">เคสคลินิก: อ่านเคสแล้วเลือกรหัส FDI</h2>
+    <p class="lead">จำลองสถานการณ์คนไข้ 6 เคส (ฟันแท้ 3 เคส และฟันน้ำนม 3 เคส) ซี่ฟันที่มีปัญหาจะถูกไฮไลต์สีน้ำเงินบนแผนภาพ อ่านเคสแล้วเลือกรหัสฟันสากล (FDI) ที่ถูกต้องจาก 4 ตัวเลือก</p>
+    <div class="row"><button class="btn primary" type="button" id="clinic-start">เริ่มทำแบบทดสอบ</button></div>
+  </div>
+  <div id="clinic-run" hidden>
+    <div class="runbar">
+      <span id="clinic-prog"></span>
+      <div class="bar"><i id="clinic-bar"></i></div>
+      <span id="clinic-acc"></span>
+      <button class="btn quiet" type="button" id="clinic-quit">ออก</button>
+    </div>
+    <p class="casetext" id="clinic-vignette"></p>
+    <div class="chartbox" id="clinic-chart"></div>
+    <div class="opts" id="clinic-opts" role="group" aria-label="ตัวเลือกรหัสฟัน"></div>
+    <div id="clinic-fb" aria-live="polite"></div>
+    <div class="row"><button class="btn primary" type="button" id="clinic-next" hidden>ข้อต่อไป</button></div>
+  </div>
+  <div id="clinic-done" hidden></div>
+</section>
+
+<!-- ================= กรณีศึกษา ================= -->
+<section id="view-case" class="view" aria-labelledby="h-case" hidden>
+  <div id="case-setup">
+    <h2 id="h-case">กรณีศึกษา: ลงบันทึกทั้งปาก</h2>
+    <p class="lead">จำลองการทำหน้าที่ผู้จดบันทึก ผู้ตรวจจะบอกสภาพฟันทีละซี่ ให้ลงรหัสบนแผนภาพให้ตรงซี่ แล้วคำนวณดัชนีฟันผุ ระบบจะตรวจว่าผิดที่ตำแหน่ง ที่รหัส หรือที่การนับ</p>
+    <form id="case-form" class="sheet">
+      <fieldset>
+        <legend>ชุดฟัน</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="dent" value="perm" checked><span>ฟันแท้ — ดัชนี DMFT<small>32 ซี่ ใช้สำหรับผู้ป่วยผู้ใหญ่หรือวัยรุ่น</small></span></label>
+          <label class="choice"><input type="radio" name="dent" value="prim"><span>ฟันน้ำนม — ดัชนี deft<small>20 ซี่ ใช้สำหรับผู้ป่วยเด็กเล็ก ก่อนฟันแท้ขึ้น</small></span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>เลือกกรณี</legend>
+        <div class="caselist" id="case-list"></div>
+      </fieldset>
+      <fieldset>
+        <legend>ผู้ตรวจบอกตำแหน่งฟันแบบใด</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="style" value="fdi" checked><span>เป็นรหัส FDI<small>เช่น “ซี่ 46” เหมาะกับการเริ่มต้น</small></span></label>
+          <label class="choice"><input type="radio" name="style" value="name"><span>เป็นชื่อฟันและตำแหน่ง<small>เช่น “ฟันกรามซี่ที่ 1 ล่างขวา” ต้องแปลงเป็นรหัสเอง</small></span></label>
+          <label class="choice"><input type="radio" name="style" value="mixed"><span>ผสมทั้งสองแบบ<small>สลับกันไปตามรายการ</small></span></label>
+        </div>
+      </fieldset>
+      <button class="btn primary" type="submit">เริ่มทำกรณีนี้</button>
+    </form>
+  </div>
+
+  <div id="case-run" hidden>
+    <h2><span class="tag" id="case-dentbadge" style="margin-right:8px"></span><span id="case-title"></span></h2>
+    <p id="case-intro" class="lead" style="margin-bottom:6px"></p>
+    <h3 style="margin-top:14px">ผู้ตรวจบอก</h3>
+    <ol class="dict" id="case-dict"></ol>
+    <p class="note" id="case-scopenote">ซ้าย–ขวาคือของผู้ป่วย ซี่ที่ไม่ได้กล่าวถึงถือว่าปกติ (รหัส 0)</p>
+    <div class="chartbox" id="case-chart"></div>
+    <p class="selbar" id="case-sel" aria-live="polite">แตะซี่ฟันบนแผนภาพเพื่อเลือก แล้วกดรหัสด้านล่าง หรือกดปุ่มตัวเลขบนคีย์บอร์ด (T สำหรับฟันหัก)</p>
+    <div class="pal" id="case-pal" role="group" aria-label="รหัสสภาพฟัน"></div>
+    <form class="calc" id="case-calc" autocomplete="off">
+      <label><span class="lbl" id="case-lblD">D</span><input id="in-D" type="number" min="0" max="32" inputmode="numeric"></label>
+      <label><span class="lbl" id="case-lblM">M</span><input id="in-M" type="number" min="0" max="32" inputmode="numeric"></label>
+      <label><span class="lbl" id="case-lblF">F</span><input id="in-F" type="number" min="0" max="32" inputmode="numeric"></label>
+      <label><span class="lbl" id="case-lblT">DMFT</span><input id="in-T" type="number" min="0" max="32" inputmode="numeric"></label>
+    </form>
+    <p class="msg" id="case-msg" role="alert"></p>
+    <div class="row">
+      <button class="btn primary" type="button" id="case-check">ตรวจคำตอบ</button>
+      <button class="btn quiet" type="button" id="case-clear">ล้างทุกซี่เป็นรหัส 0</button>
+      <button class="btn quiet" type="button" id="case-quit">เลิกทำ</button>
+    </div>
+    <div id="case-review"></div>
+  </div>
+</section>
+
+<!-- ================= สรุปผล ================= -->
+<section id="view-result" class="view" aria-labelledby="h-result" hidden>
+  <h2 id="h-result">สรุปผลความแม่นยำ</h2>
+  <div id="result-body"></div>
+</section>
+
+</main>
+
+<footer><div class="wrap">สื่อนี้ทำงานในเบราว์เซอร์ทั้งหมด ไม่ส่งข้อมูลไปยังเซิร์ฟเวอร์ใด เกณฑ์ระดับความแม่นยำในหน้าสรุปผลเป็นค่าตั้งต้นที่ผู้สอนปรับได้</div></footer>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- helpers ---------- */
+var $=function(s,r){return (r||document).querySelector(s);};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});};
+var shuffle=function(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;};
+var pct=function(a,b){return b?Math.round(a*100/b):null;};
+var CUTOFFS=[90,75,60]; /* เกณฑ์ตัวอย่าง: แม่นยำมาก / ดี / พอใช้ (ปรับได้) */
+var store={
+  get:function(k,d){try{var v=localStorage.getItem("fdidmft."+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
+  set:function(k,v){try{localStorage.setItem("fdidmft."+k,JSON.stringify(v));}catch(e){}}
+};
+function grade(p){
+  if(p===null)return {t:"ยังไม่มีข้อมูล",c:"na"};
+  if(p>=CUTOFFS[0])return {t:"แม่นยำมาก",c:"g"};
+  if(p>=CUTOFFS[1])return {t:"ดี",c:"b"};
+  if(p>=CUTOFFS[2])return {t:"พอใช้ ควรทบทวน",c:"a"};
+  return {t:"ควรฝึกเพิ่ม",c:"r"};
+}
+function meter(p){var g=grade(p);return '<div class="meter '+g.c+'" role="img" aria-label="'+(p===null?"ไม่มีข้อมูล":p+" เปอร์เซ็นต์")+'"><i style="width:'+(p||0)+'%"></i></div>';}
+
+/* ---------- state ---------- */
+var S={mode:store.get("mode","assess"),name:store.get("name",""),sid:store.get("sid",""),log:store.get("log",[])};
+if(!Array.isArray(S.log))S.log=[];
+function persist(){store.set("log",S.log);}
+function record(e){e.t=Date.now();S.log.push(e);persist();}
+
+/* ---------- data: FDI ---------- */
+var NAMES={
+  perm:{1:"ฟันตัดซี่กลาง",2:"ฟันตัดซี่ข้าง",3:"ฟันเขี้ยว",4:"ฟันกรามน้อยซี่ที่ 1",5:"ฟันกรามน้อยซี่ที่ 2",6:"ฟันกรามซี่ที่ 1",7:"ฟันกรามซี่ที่ 2",8:"ฟันกรามซี่ที่ 3"},
+  prim:{1:"ฟันตัดซี่กลาง",2:"ฟันตัดซี่ข้าง",3:"ฟันเขี้ยว",4:"ฟันกรามน้ำนมซี่ที่ 1",5:"ฟันกรามน้ำนมซี่ที่ 2"}
+};
+var TYPES={perm:{1:"inc",2:"inc",3:"can",4:"pre",5:"pre",6:"mol",7:"mol",8:"mol"},prim:{1:"inc",2:"inc",3:"can",4:"mol",5:"mol"}};
+var QUAD={};
+[[1,"U","R","บนขวา","perm"],[2,"U","L","บนซ้าย","perm"],[3,"L","L","ล่างซ้าย","perm"],[4,"L","R","ล่างขวา","perm"],
+ [5,"U","R","บนขวา","prim"],[6,"U","L","บนซ้าย","prim"],[7,"L","L","ล่างซ้าย","prim"],[8,"L","R","ล่างขวา","prim"]].forEach(function(a){QUAD[a[0]]={arch:a[1],side:a[2],th:a[3],dent:a[4]};});
+var TEETH={perm:[],prim:[]},BYCODE={};
+["perm","prim"].forEach(function(dent){
+  var qs=dent==="perm"?[1,2,3,4]:[5,6,7,8],per=dent==="perm"?8:5;
+  qs.forEach(function(q){for(var n=1;n<=per;n++){
+    var qi=QUAD[q],t={code:""+q+n,q:q,n:n,arch:qi.arch,side:qi.side,quadTh:qi.th,name:NAMES[dent][n],type:TYPES[dent][n],dent:dent,full:NAMES[dent][n]+" "+qi.th};
+    TEETH[dent].push(t);BYCODE[t.code]=t;
+  }});
+});
+var qn=function(q){return ((q-1)%4)+1;};
+var LR={1:2,2:1,3:4,4:3},UD={1:4,4:1,2:3,3:2},DG={1:3,3:1,2:4,4:2};
+function partner(t,map){var q=t.q,base=q-qn(q);return BYCODE[""+(base+map[qn(q)])+t.n];}
+function explainFDI(t){
+  return "หลักแรก "+t.code.charAt(0)+" = ควอดแรนท์"+QUAD[t.q].th+"ของผู้ป่วย · หลักหลัง "+t.n+" = "+t.name+" (นับจากเส้นกึ่งกลางออกไปด้านหลัง)";
+}
+var ERR={lr:"สลับซ้าย–ขวาของผู้ป่วย",ud:"สลับบน–ล่าง",diag:"ตรงข้ามแนวทแยง (สลับทั้งซ้าย–ขวาและบน–ล่าง)",pos:"ควอดแรนท์ถูก แต่นับลำดับซี่ผิด",both:"ผิดทั้งควอดแรนท์และลำดับซี่",invalid:"รหัสที่ตอบไม่มีอยู่ในชุดฟันนี้"};
+function fdiErr(exp,giv,dent){
+  var g=BYCODE[giv],e=BYCODE[exp];
+  if(!g||g.dent!==dent)return "invalid";
+  if(e.n===g.n){var a=qn(e.q),b=qn(g.q);if(LR[a]===b)return "lr";if(UD[a]===b)return "ud";return "diag";}
+  if(e.q===g.q)return "pos";
+  return "both";
+}
+
+/* ---------- data: DMFT codes ---------- */
+var CODES=[
+ {c:"0",n:"ฟันปกติ",s:"ปกติ",k:"",d:"ไม่พบรอยผุที่ยืนยันได้ และไม่มีวัสดุอุด รอยขาวขุ่น คราบสีในร่องฟัน หรือผิวสึกที่ไม่เป็นโพรงและไม่นิ่ม ยังถือว่าปกติ"},
+ {c:"1",n:"ฟันผุ",s:"ผุ",k:"D",d:"มีโพรงผุที่ยืนยันได้ (โพรงชัดเจน เคลือบฟันถูกกัดเซาะใต้ผิว หรือพื้น/ผนังนิ่ม) รวมฟันที่อุดชั่วคราว ฟันที่มี sealant แต่ผุ และฟันที่เหลือแต่ราก"},
+ {c:"2",n:"อุดแล้วและมีรอยผุ",s:"อุด + ผุ",k:"D",d:"มีวัสดุอุดถาวร และมีรอยผุที่ขอบวัสดุอุดหรือที่ผิวอื่นของฟันซี่เดียวกัน"},
+ {c:"3",n:"อุดแล้วไม่มีรอยผุ",s:"อุดไม่ผุ",k:"F",d:"มีวัสดุอุดถาวรสภาพดี และไม่พบรอยผุ"},
+ {c:"4",n:"สูญเสียเพราะฟันผุ",s:"ถอนเพราะผุ",k:"M",d:"ไม่มีฟันในตำแหน่งนั้น และสาเหตุที่สูญเสียคือฟันผุ"},
+ {c:"5",n:"สูญเสียด้วยสาเหตุอื่น",s:"หายเหตุอื่น",k:"",d:"ไม่มีฟันในตำแหน่งนั้น สาเหตุอื่นที่ไม่ใช่ผุ เช่น ถอนเพื่อจัดฟัน ฟันคุด อุบัติเหตุ หรือไม่มีฟันตั้งแต่กำเนิด"},
+ {c:"6",n:"เคลือบหลุมร่องฟัน",s:"sealant",k:"",d:"มีสารเคลือบหลุมร่องฟันครบร่อง และไม่พบผุ"},
+ {c:"7",n:"หลักยึด/ครอบพิเศษ/รากเทียม",s:"หลักยึด ครอบพิเศษ",k:"",d:"ฟันที่เป็นหลักยึดสะพานฟัน มีครอบหรือวีเนียร์ที่ไม่ได้ทำเพราะผุ หรือเป็นรากเทียม"},
+ {c:"8",n:"ฟันยังไม่ขึ้น",s:"ยังไม่ขึ้น",k:"",d:"ฟันแท้ยังไม่ขึ้นจนเห็นส่วนตัวฟัน"},
+ {c:"9",n:"ไม่รวมในการตรวจ",s:"ตรวจไม่ได้",k:"",d:"ฟันที่ขึ้นแล้วแต่ตรวจไม่ได้ เช่น ถูกแบนด์จัดฟันคลุม หรือผิวฟันผิดปกติรุนแรงจนประเมินไม่ได้"},
+ {c:"T",n:"ฟันหักจากอุบัติเหตุ",s:"หักอุบัติเหตุ",k:"",d:"ตัวฟันหักหรือกะเทาะจากอุบัติเหตุ และไม่พบรอยผุ"}
+];
+var CODEORDER=CODES.map(function(x){return x.c;});
+var CBY={};CODES.forEach(function(x){CBY[x.c]=x;});
+function codeLabel(c){return c+" ("+CBY[c].n+")";}
+function calcDMFT(map){
+  var D=0,M=0,F=0;
+  for(var k in map){var v=map[k];if(v==="1"||v==="2")D++;else if(v==="4")M++;else if(v==="3")F++;}
+  return {D:D,M:M,F:F,T:D+M+F};
+}
+
+/* ---------- data: ICDAS 0-6 caries severity codes (สำหรับแบบฝึก "รหัสสภาพฟัน") ---------- */
+/* คำนิยามอ้างอิงตามเกณฑ์ ICDAS (International Caries Detection and Assessment System) ที่ผู้สอนกำหนด */
+var CODES_ICDAS=[
+ {c:"0",n:"ฟันปกติ (Sound)",s:"ปกติ",stage:"early",
+  d:"ฟันปกติ ผิวฟันแข็งแรงดี ไม่มีร่องรอยการสูญเสียแร่ธาตุ",
+  gh:"ผิวฟัน<mark>แข็งแรงดี ไม่มีร่องรอยการสูญเสียแร่ธาตุ</mark>ใด ๆ แม้เมื่อเป่าลมให้แห้งสนิทแล้วตรวจดูก็ตาม"},
+ {c:"1",n:"เริ่มเปลี่ยนสีเมื่อฟันแห้ง",s:"White spot (เห็นตอนแห้ง)",stage:"early",
+  d:"เมื่อเป่าลมให้ฟันแห้งสนิท จะเห็นจุดหรือคราบขาวขุ่น (White spot) หรือสีน้ำตาลเล็กน้อยตามร่องฟัน",
+  gh:"ต้อง<mark>เป่าลมให้ฟันแห้งสนิท</mark>ก่อนจึงจะเห็น<mark>จุดหรือคราบขาวขุ่น (White spot)</mark> หรือสีน้ำตาลเล็กน้อยตามร่องฟัน — ถ้าฟันยังเปียกน้ำลายจะมองไม่เห็นรอยนี้"},
+ {c:"2",n:"เปลี่ยนสีชัดเจนเห็นได้ทันที",s:"เห็นชัดทั้งที่เปียก",stage:"early",
+  d:"มองเห็นรอยสีขาวขุ่นหรือสีน้ำตาลได้ชัดเจนแม้ในขณะที่ฟันยังเปียกน้ำลายอยู่",
+  gh:"มองเห็นรอยสีขาวขุ่นหรือสีน้ำตาลได้<mark>ชัดเจนแม้ในขณะที่ฟันยังเปียกน้ำลายอยู่</mark> ไม่ต้องเป่าลมให้แห้งก็เห็น — จุดต่างจากรหัส 1 ตรงนี้"},
+ {c:"3",n:"ผิวเคลือบฟันเริ่มแตก",s:"รูเล็ก ๆ ยังไม่เห็นเนื้อฟัน",stage:"established",
+  d:"โครงสร้างเนื้อฟันบริเวณเคลือบฟันหลุดออกเล็กน้อยจนเกิดเป็นรูเล็ก ๆ แต่เมื่อมองลงไปยังไม่เห็นเนื้อฟันสีเหลืองด้านล่าง",
+  gh:"ผิวเคลือบฟัน<mark>เริ่มแตก หลุดออกเล็กน้อยจนเกิดเป็นรูเล็ก ๆ</mark> แต่เมื่อมองลงไปใน<mark>ยังไม่เห็นเนื้อฟันสีเหลืองด้านล่าง</mark> — ถ้าเริ่มเห็นเนื้อฟันแล้วต้องขยับไปรหัส 4"},
+ {c:"4",n:"เงาดำใต้เคลือบฟัน",s:"เงาใต้เคลือบฟัน",stage:"established",
+  d:"มองเห็นเป็นเงาสีเทา สีฟ้า หรือสีน้ำตาลเข้มสะท้อนมาจากชั้นเนื้อฟันด้านล่าง แม้ผิวฟันด้านบนอาจจะยังไม่แตกเป็นรูใหญ่",
+  gh:"มองเห็นเป็น<mark>เงาดำใต้เคลือบฟัน</mark> (เงาสีเทา สีฟ้า หรือสีน้ำตาลเข้ม) สะท้อนมาจากชั้นเนื้อฟันด้านล่าง แม้ผิวฟันด้านบนอาจจะ<mark>ยังไม่แตกเป็นรูใหญ่</mark>ก็ตาม"},
+ {c:"5",n:"เป็นรูชัดเจนเห็นเนื้อฟัน",s:"โพรงชัดเจน ≤ ครึ่งด้าน",stage:"severe",
+  d:"ฟันแตกเป็นโพรงกว้าง มองเห็นชั้นเนื้อฟัน (Dentin) สีเหลืองหรือน้ำตาลเด่นชัด แต่รอยผุยังกินพื้นที่ไม่เกินครึ่งหนึ่งของด้านฟันนั้น ๆ",
+  gh:"ฟันแตกเป็นโพรงกว้าง <mark>เห็นชั้นเนื้อฟัน (Dentin)</mark> สีเหลืองหรือน้ำตาลเด่นชัด แต่รอยผุ<mark>ยังกินพื้นที่ไม่เกินครึ่งหนึ่ง</mark>ของด้านฟันนั้น ๆ"},
+ {c:"6",n:"ผุกว้างใหญ่โต",s:"โพรงใหญ่ > ครึ่งด้าน",stage:"severe",
+  d:"ฟันผุพังเป็นโพรงขนาดใหญ่มาก กินพื้นที่เกินครึ่งหนึ่งของด้านฟัน ทำลายโครงสร้างฟันไปเกือบทั้งหมด (เสี่ยงต่อการทะลุโพรงประสาทฟันสูง)",
+  gh:"ฟันผุพังเป็นโพรงขนาดใหญ่มาก <mark>กินพื้นที่เกินครึ่งหนึ่งของด้านฟัน</mark> ทำลายโครงสร้างฟันไปเกือบทั้งหมด (<mark>เสี่ยงต่อการทะลุโพรงประสาทฟันสูง</mark>)"}
+];
+var CODEORDER_ICDAS=CODES_ICDAS.map(function(x){return x.c;});
+var CBY_ICDAS={};CODES_ICDAS.forEach(function(x){CBY_ICDAS[x.c]=x;});
+function icdasLabel(c){var x=CBY_ICDAS[c];return x?(c+" ("+x.n+")"):c;}
+var ICDAS_STAGE={early:"ระยะเริ่มต้น (0–2) ยังไม่เป็นรูผุชัดเจน",established:"ระยะปานกลาง (3–4) เริ่มสูญเสียโครงสร้างฟัน",severe:"ระยะรุนแรง (5–6) ผุเป็นรูขนาดใหญ่"};
+
+/* ---------- data: ICDAS clinical-case item bank (ผสมผสาน FDI + ICDAS, ฟันแท้ 75% / ฟันน้ำนม 25%) ---------- */
+var ITEMS_ICDAS=[
+ {dent:"perm",tooth:"16",code:"0",options:["0","1","2","3"],
+  vignette:"คนไข้ชายอายุ 28 ปี มาตรวจสุขภาพฟันประจำปี ผู้ตรวจเป่าลมให้ฟันกรามแท้ซี่ที่ 1 บนขวา (ซี่ 16) แห้งสนิทแล้วตรวจด้วยสายตาและสัมผัสเบา ๆ ไม่พบร่องรอยการเปลี่ยนสีหรือการสูญเสียแร่ธาตุใด ๆ ตามเกณฑ์ ICDAS ควรบันทึกรหัสสภาพฟันซี่นี้ด้วยรหัสใด",
+  explain:"ไม่มีร่องรอยการสูญเสียแร่ธาตุแม้เป่าลมจนแห้งสนิทแล้ว ตรงกับรหัส 0 (Sound) · รหัส 1–3 ล้วนต้องมีร่องรอยเปลี่ยนสีหรือโครงสร้างผิวเสียหายอย่างน้อยเล็กน้อย ซึ่งไม่พบในเคสนี้"},
+ {dent:"perm",tooth:"21",code:"0",options:["0","1","2","4"],
+  vignette:"คนไข้หญิงอายุ 34 ปี มาตรวจคัดกรองในโครงการชุมชน ฟันตัดซี่กลางบนซ้าย (ซี่ 21) ผิวเรียบเป็นมัน ไม่มีคราบขาวขุ่นแม้เป่าลมให้แห้ง และไม่มีเงาใต้เคลือบฟัน ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"ผิวฟันปกติ ไม่มีทั้งรอยขาวขุ่นตอนแห้ง (รหัส 1) และไม่มีเงาใต้เคลือบฟัน (รหัส 4) จึงบันทึกรหัส 0"},
+ {dent:"perm",tooth:"44",code:"0",options:["0","1","2","3"],
+  vignette:"คนไข้ชายอายุ 50 ปี ฟันกรามน้อยซี่ที่ 1 ล่างขวา (ซี่ 44) มีผิวสึกเล็กน้อยที่ปุ่มฟันจากการบดเคี้ยว แต่ไม่มีรอยผุ ไม่มีคราบขาวขุ่นหรือเงาใต้เคลือบฟัน ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"ผิวฟันสึกจากการใช้งานโดยไม่มีรอยผุถือว่ายังปกติตามเกณฑ์ ICDAS บันทึกรหัส 0 การสึกไม่ใช่เกณฑ์ที่ใช้ในการให้คะแนนความรุนแรงของผุ"},
+ {dent:"prim",tooth:"55",code:"0",options:["0","1","2","3"],
+  vignette:"เด็กหญิงอายุ 6 ขวบ มาตรวจสุขภาพฟันที่โรงเรียน ฟันกรามน้ำนมซี่ที่ 2 บนขวา (ซี่ 55) ผิวเรียบ เป่าลมให้แห้งแล้วไม่พบคราบขาวขุ่นหรือสีน้ำตาลใด ๆ ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"ไม่พบร่องรอยการเปลี่ยนสีแม้เป่าลมจนแห้งสนิท ตรงกับรหัส 0 (Sound)"},
+
+ {dent:"prim",tooth:"51",code:"1",options:["0","1","2","3"],
+  vignette:"คนไข้เด็กอายุ 5 ขวบ มารับการตรวจฟัน เมื่อใช้ลมเป่าจนฟันแห้งสนิท พบรอยคราบขาวขุ่น (White spot) เล็กน้อยตามร่องฟันของฟันตัดหน้าบนขวาซี่กลาง (ซี่ 51) แต่เมื่อเปียกน้ำลายจะมองไม่เห็น รอยผุนี้ตรงกับ ICDAS รหัสใด",
+  explain:"ต้องเป่าลมให้แห้งสนิทก่อนจึงเห็นคราบขาวขุ่น และมองไม่เห็นตอนเปียกน้ำลาย เป็นลักษณะเฉพาะของรหัส 1 หากเห็นชัดตอนเปียกด้วยจะขยับเป็นรหัส 2"},
+ {dent:"perm",tooth:"26",code:"1",options:["0","1","2","3"],
+  vignette:"คนไข้หญิงอายุ 30 ปี ฟันกรามแท้ซี่ที่ 1 บนซ้าย (ซี่ 26) เมื่อเป่าลมให้แห้งสนิทแล้วตรวจ พบจุดขาวขุ่นจาง ๆ ตามร่องฟันด้านบดเคี้ยว แต่ขณะฟันยังเปียกน้ำลายจะมองไม่เห็นรอยนี้เลย ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"เห็นรอยขาวขุ่นเฉพาะตอนเป่าแห้ง มองไม่เห็นตอนเปียก ตรงกับนิยามรหัส 1 พอดี"},
+ {dent:"perm",tooth:"36",code:"1",options:["0","1","2","4"],
+  vignette:"คนไข้ชายอายุ 19 ปี ฟันกรามแท้ซี่ที่ 1 ล่างซ้าย (ซี่ 36) มีคราบสีน้ำตาลจาง ๆ ตามร่องฟัน เห็นได้เมื่อเป่าลมให้แห้งเท่านั้น ไม่มีเงาใต้เคลือบฟันหรือรูผุ ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"เห็นคราบสีเฉพาะเมื่อเป่าลมแห้ง (ไม่ใช่เห็นชัดตอนเปียกอย่างรหัส 2 และไม่มีเงาใต้เคลือบฟันอย่างรหัส 4) จึงบันทึกรหัส 1"},
+ {dent:"perm",tooth:"14",code:"1",options:["0","1","2","3"],
+  vignette:"คนไข้หญิงอายุ 22 ปี ฟันกรามน้อยซี่ที่ 1 บนขวา (ซี่ 14) ด้านประชิดมีจุดขาวขุ่นเล็ก ๆ เห็นได้ชัดก็ต่อเมื่อเป่าลมจนแห้งเท่านั้น ผิวเคลือบฟันยังไม่มีรูหรือรอยแตก ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"รอยขาวขุ่นเห็นเฉพาะตอนแห้งและผิวเคลือบฟันยังไม่แตกเป็นรู ตรงกับรหัส 1"},
+
+ {dent:"perm",tooth:"24",code:"2",options:["0","1","2","3"],
+  vignette:"คนไข้ชายอายุ 26 ปี ฟันกรามน้อยซี่ที่ 2 บนซ้าย (ซี่ 24) มีรอยสีน้ำตาลบริเวณหลุมร่องฟัน มองเห็นได้ชัดเจนตั้งแต่แรกตรวจโดยไม่ต้องเป่าลม แม้ฟันจะยังเปียกน้ำลายอยู่ก็ตาม ผิวเคลือบฟันยังไม่แตกเป็นรู ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"มองเห็นรอยเปลี่ยนสีชัดเจนแม้ฟันยังเปียกน้ำลาย โดยไม่ต้องเป่าลมให้แห้งก่อน ตรงกับนิยามรหัส 2 ซึ่งต่างจากรหัส 1 ที่ต้องเป่าแห้งก่อนจึงเห็น"},
+ {dent:"perm",tooth:"34",code:"2",options:["1","2","3","4"],
+  vignette:"คนไข้หญิงอายุ 40 ปี ฟันกรามน้อยซี่ที่ 1 ล่างซ้าย (ซี่ 34) มีรอยขาวขุ่นเห็นชัดเจนตั้งแต่ยังไม่ได้เป่าลม ผิวเคลือบฟันเรียบไม่มีรูหรือรอยแตก และไม่มีเงาใต้เคลือบฟัน ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"เห็นรอยชัดเจนโดยไม่ต้องเป่าลมให้แห้ง แต่ผิวเคลือบฟันยังไม่แตกเป็นรูและไม่มีเงาใต้เคลือบฟัน จึงยังอยู่ในระยะเริ่มต้นคือรหัส 2 ไม่ใช่รหัส 3 หรือ 4"},
+ {dent:"perm",tooth:"44",code:"2",options:["0","1","2","3"],
+  vignette:"คนไข้ชายอายุ 35 ปี ฟันกรามน้อยซี่ที่ 1 ล่างขวา (ซี่ 44) ด้านบดเคี้ยวมีรอยสีน้ำตาลเข้มเห็นชัดแม้ฟันยังเปียกอยู่ ตรวจด้วยเครื่องมือสัมผัสเบา ๆ ผิวเคลือบฟันยังเรียบสนิท ไม่มีรูผุ ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"เห็นรอยเปลี่ยนสีชัดเจนตั้งแต่ฟันยังเปียก แต่ผิวเคลือบฟันยังไม่แตกเป็นรู ตรงกับรหัส 2"},
+ {dent:"prim",tooth:"61",code:"2",options:["0","1","2","3"],
+  vignette:"เด็กชายอายุ 4 ขวบ ฟันตัดซี่กลางบนซ้าย (ซี่ 61) มีรอยสีน้ำตาลตามขอบเหงือกเห็นชัดเจนทันทีที่ตรวจ โดยไม่ต้องเป่าลม ผิวเคลือบฟันยังไม่มีรูผุ ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"มองเห็นรอยเปลี่ยนสีชัดเจนโดยไม่ต้องเป่าลมให้แห้ง และยังไม่มีรูผุ ตรงกับรหัส 2"},
+
+ {dent:"perm",tooth:"17",code:"3",options:["2","3","4","5"],
+  vignette:"คนไข้หญิงอายุ 24 ปี ฟันกรามแท้ซี่ที่ 2 บนขวา (ซี่ 17) ด้านบดเคี้ยวมีรอยแตกเล็ก ๆ ของผิวเคลือบฟัน เมื่อใช้เครื่องมือตรวจสัมผัสรู้สึกเป็นรูตื้น ๆ แต่เมื่อมองลงไปในรูยังไม่เห็นเนื้อฟันสีเหลืองด้านล่าง ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"เริ่มเป็นรูเล็ก ๆ จากผิวเคลือบฟันแตก แต่ยังมองไม่เห็นเนื้อฟันสีเหลืองด้านล่าง ตรงกับรหัส 3 หากเริ่มเห็นเงาหรือชั้นเนื้อฟันแล้วจะขยับเป็นรหัส 4 หรือ 5"},
+ {dent:"perm",tooth:"27",code:"3",options:["1","2","3","4"],
+  vignette:"คนไข้ชายอายุ 29 ปี ฟันกรามแท้ซี่ที่ 2 บนซ้าย (ซี่ 27) ด้านประชิดมีรอยแตกเล็กน้อยจนเป็นรูตื้น ๆ ที่ผิวเคลือบฟัน ไม่มีเงาสีเทาหรือน้ำตาลสะท้อนจากเนื้อฟันด้านล่าง ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"มีรูตื้นจากผิวเคลือบฟันแตกแต่ไม่มีเงาสะท้อนจากเนื้อฟัน จึงยังเป็นรหัส 3 ไม่ใช่รหัส 4"},
+ {dent:"perm",tooth:"37",code:"3",options:["2","3","4","5"],
+  vignette:"คนไข้หญิงอายุ 33 ปี ฟันกรามแท้ซี่ที่ 2 ล่างซ้าย (ซี่ 37) ด้านบดเคี้ยวมีรูเล็ก ๆ จากผิวเคลือบฟันหลุดออก เมื่อส่องไฟดูในรูยังไม่พบเนื้อฟันสีเหลืองหรือเงาใด ๆ ด้านล่าง ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"รูเล็กที่เกิดจากผิวเคลือบฟันหลุดโดยยังไม่เห็นเนื้อฟันด้านล่าง ตรงกับรหัส 3"},
+ {dent:"prim",tooth:"71",code:"3",options:["1","2","3","4"],
+  vignette:"เด็กชายอายุ 7 ขวบ ฟันตัดซี่กลางล่างซ้าย (ซี่ 71) ด้านลิ้นมีรูตื้น ๆ จากผิวเคลือบฟันแตกเล็กน้อย มองลงไปยังไม่เห็นเนื้อฟันสีเหลืองด้านล่าง ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"รูตื้นจากผิวเคลือบฟันแตกโดยยังไม่เห็นเนื้อฟันด้านล่าง ตรงกับรหัส 3"},
+
+ {dent:"perm",tooth:"16",code:"4",options:["2","3","4","5"],
+  vignette:"จากการตรวจช่องปากคนไข้ผู้ใหญ่ พบว่าฟันกรามบนขวาซี่แรก (ซี่ 16) มีรอยเงาดำสีเทาเข้มสะท้อนมาจากชั้นเนื้อฟันด้านล่างอย่างชัดเจน แต่ผิวฟันด้านบนยังไม่แตกเป็นรูใหญ่ ตามเกณฑ์ ICDAS นักศึกษาจะต้องบันทึกรหัสสภาพฟันซี่นี้ด้วยเลขใด",
+  explain:"มีเงาสีเทาสะท้อนจากชั้นเนื้อฟันด้านล่างชัดเจน แม้ผิวฟันด้านบนยังไม่แตกเป็นรูใหญ่ ลักษณะนี้ตรงกับรหัส 4 (เงาดำใต้เคลือบฟัน) ซึ่งรุนแรงกว่ารหัส 3 ที่ยังไม่เห็นเงาใด ๆ แต่ยังไม่ถึงรหัส 5 ที่ต้องเห็นเนื้อฟันเป็นโพรงจริง"},
+ {dent:"perm",tooth:"13",code:"4",options:["2","3","4","5"],
+  vignette:"คนไข้หญิงอายุ 27 ปี ฟันเขี้ยวแท้บนขวา (ซี่ 13) ด้านประชิดมีเงาสีน้ำตาลเข้มสะท้อนใต้ผิวเคลือบฟันเห็นได้ชัด แต่ผิวเคลือบฟันด้านนอกยังคงสภาพเรียบ ไม่มีรูให้เห็น ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"มีเงาสีน้ำตาลเข้มสะท้อนจากใต้เคลือบฟันแม้ผิวด้านนอกยังไม่แตกเป็นรู ตรงกับรหัส 4"},
+ {dent:"perm",tooth:"23",code:"4",options:["3","4","5","6"],
+  vignette:"คนไข้ชายอายุ 31 ปี ฟันเขี้ยวแท้บนซ้าย (ซี่ 23) มีเงาสีฟ้าอมเทาสะท้อนใต้เคลือบฟันบริเวณด้านประชิด ตรวจด้วยเครื่องมือสัมผัสเบา ๆ ยังไม่พบรูผุที่ผิวด้านนอก ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"เงาสีฟ้าอมเทาใต้เคลือบฟันโดยผิวด้านนอกยังไม่เป็นรู ตรงกับรหัส 4 ไม่ใช่รหัส 5 ที่ต้องเห็นเนื้อฟันเป็นโพรงจริงแล้ว"},
+ {dent:"prim",tooth:"81",code:"4",options:["2","3","4","5"],
+  vignette:"เด็กหญิงอายุ 5 ขวบ ฟันตัดซี่กลางล่างขวา (ซี่ 81) มีเงาสีเทาเข้มสะท้อนใต้เคลือบฟันด้านลิ้น ผิวฟันด้านนอกยังไม่แตกเป็นรูใหญ่ ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"เงาสีเทาเข้มใต้เคลือบฟันโดยผิวด้านนอกยังไม่แตกเป็นรูใหญ่ ตรงกับรหัส 4"},
+
+ {dent:"perm",tooth:"33",code:"5",options:["3","4","5","6"],
+  vignette:"คนไข้ชายอายุ 45 ปี ฟันเขี้ยวแท้ล่างซ้าย (ซี่ 33) มีรูผุชัดเจน มองเห็นเนื้อฟัน (Dentin) สีน้ำตาลเด่นชัด รอยผุกินพื้นที่ประมาณหนึ่งในสามของด้านฟัน ยังไม่ถึงครึ่งหนึ่ง ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"เห็นชั้นเนื้อฟันชัดเจนแต่รอยผุยังไม่เกินครึ่งหนึ่งของด้านฟัน ตรงกับรหัส 5 หากลุกลามเกินครึ่งด้านจะกลายเป็นรหัส 6"},
+ {dent:"perm",tooth:"43",code:"5",options:["4","5","6","3"],
+  vignette:"คนไข้หญิงอายุ 52 ปี ฟันเขี้ยวแท้ล่างขวา (ซี่ 43) แตกเป็นโพรงกว้าง มองเห็นเนื้อฟันสีเหลืองเด่นชัด รอยผุกินพื้นที่ประมาณครึ่งหนึ่งของด้านฟันพอดี ยังไม่เกินครึ่ง ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"เห็นเนื้อฟันเด่นชัดและรอยผุยังไม่เกินครึ่งหนึ่งของด้านฟัน จึงยังอยู่ในเกณฑ์รหัส 5"},
+ {dent:"perm",tooth:"15",code:"5",options:["3","4","5","6"],
+  vignette:"คนไข้ชายอายุ 38 ปี ฟันกรามน้อยซี่ที่ 2 บนขวา (ซี่ 15) มีโพรงผุเห็นเนื้อฟันสีน้ำตาลชัดเจนที่ด้านบดเคี้ยว รอยผุกินพื้นที่ไม่ถึงครึ่งหนึ่งของด้านฟัน ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"เห็นเนื้อฟันชัดเจนแต่พื้นที่ผุยังไม่เกินครึ่งด้าน ตรงกับรหัส 5"},
+ {dent:"prim",tooth:"52",code:"5",options:["3","4","5","6"],
+  vignette:"เด็กชายอายุ 6 ขวบ ฟันตัดซี่ข้างบนขวา (ซี่ 52) มีโพรงผุเห็นเนื้อฟันสีเหลืองชัดเจน กินพื้นที่ประมาณหนึ่งในสามของด้านฟัน ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"เห็นชั้นเนื้อฟันชัดเจนและพื้นที่ผุยังไม่เกินครึ่งด้าน ตรงกับรหัส 5"},
+
+ {dent:"perm",tooth:"25",code:"6",options:["4","5","6","3"],
+  vignette:"คนไข้หญิงอายุ 55 ปี ฟันกรามน้อยซี่ที่ 2 บนซ้าย (ซี่ 25) ผุพังเป็นโพรงขนาดใหญ่มาก กินพื้นที่เกินครึ่งหนึ่งของด้านฟัน โครงสร้างฟันถูกทำลายไปเกือบทั้งหมด เสี่ยงทะลุโพรงประสาทฟัน ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"โพรงผุขนาดใหญ่มากกินพื้นที่เกินครึ่งหนึ่งของด้านฟันและทำลายโครงสร้างฟันไปเกือบทั้งหมด ตรงกับรหัส 6 ซึ่งรุนแรงกว่ารหัส 5 ที่พื้นที่ผุยังไม่เกินครึ่งด้าน"},
+ {dent:"perm",tooth:"35",code:"6",options:["4","5","6","3"],
+  vignette:"คนไข้ชายอายุ 48 ปี ฟันกรามน้อยซี่ที่ 2 ล่างซ้าย (ซี่ 35) ตัวฟันผุพังเกือบทั้งซี่ เหลือผนังฟันเพียงบางส่วน รอยผุกินพื้นที่มากกว่าครึ่งหนึ่งของด้านฟันอย่างชัดเจน ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"โครงสร้างฟันถูกทำลายไปเกือบทั้งหมดและพื้นที่ผุเกินครึ่งด้าน ตรงกับรหัส 6"},
+ {dent:"perm",tooth:"45",code:"6",options:["3","4","5","6"],
+  vignette:"คนไข้หญิงอายุ 60 ปี ฟันกรามน้อยซี่ที่ 2 ล่างขวา (ซี่ 45) มีโพรงผุขนาดใหญ่ กินพื้นที่เกือบทั้งด้านบดเคี้ยว เห็นเนื้อฟันเป็นบริเวณกว้างมาก ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"โพรงผุขนาดใหญ่มากกินพื้นที่เกินครึ่งหนึ่งของด้านฟัน ตรงกับรหัส 6"},
+ {dent:"prim",tooth:"62",code:"6",options:["4","5","6","3"],
+  vignette:"เด็กหญิงอายุ 4 ขวบ ฟันตัดซี่ข้างบนซ้าย (ซี่ 62) ผุพังจนเหลือเพียงโครงฟันบางส่วน เห็นเนื้อฟันเป็นบริเวณกว้างเกินครึ่งหนึ่งของตัวฟัน ตามเกณฑ์ ICDAS ควรบันทึกรหัสใด",
+  explain:"โครงสร้างฟันถูกทำลายไปเกือบทั้งหมดและพื้นที่ผุเกินครึ่งด้าน ตรงกับรหัส 6"}
+];
+ITEMS_ICDAS.forEach(function(it,i){it.id="q"+(i+1);});
+
+/* ---------- data: cases ---------- */
+var CASES=[
+ {id:"k1",title:"นักเรียนชาย อายุ 15 ปี",level:"ง่าย",intro:"สำรวจสภาพช่องปากในโรงเรียน ตรวจฟันแท้ทั้ง 32 ตำแหน่ง",
+  dmft:{D:1,M:0,F:1,T:2},
+  find:[
+   {f:"16",c:"1",t:"ด้านบดเคี้ยวมีโพรงผุชัดเจน เครื่องมือสำรวจพบพื้นโพรงนิ่ม ไม่มีวัสดุอุด",w:"โพรงผุที่ยืนยันได้และไม่มีวัสดุอุด → รหัส 1 นับเป็น D"},
+   {f:"26",c:"3",t:"อุดอมัลกัมที่ด้านบดเคี้ยว ขอบเรียบ ไม่พบผุรอบวัสดุอุดหรือที่ผิวอื่น",w:"อุดแล้วและไม่มีผุ → รหัส 3 นับเป็น F"},
+   {f:"36",c:"6",t:"ร่องฟันด้านบดเคี้ยวมีสารเคลือบหลุมร่องฟันครบทั้งร่อง ไม่พบรอยผุ",w:"มี sealant สภาพดีและไม่ผุ → รหัส 6 ไม่นับใน DMFT"},
+   {f:"46",c:"0",t:"ร่องฟันมีคราบสีน้ำตาล แต่เครื่องมือสำรวจไม่ติดและพื้นร่องฟันแข็ง",w:"คราบสีที่ไม่มีหลักฐานผุยังเป็นรหัส 0 ไม่ต้องเปลี่ยนรหัส"},
+   {f:"18",c:"8",t:"ยังไม่ขึ้นในช่องปาก มองไม่เห็นตัวฟัน",w:"ฟันยังไม่ขึ้น → รหัส 8"},
+   {f:"28",c:"8",t:"ยังไม่ขึ้นในช่องปาก มองไม่เห็นตัวฟัน",w:"ฟันยังไม่ขึ้น → รหัส 8"},
+   {f:"38",c:"8",t:"ยังไม่ขึ้นในช่องปาก มองไม่เห็นตัวฟัน",w:"ฟันยังไม่ขึ้น → รหัส 8"},
+   {f:"48",c:"8",t:"ยังไม่ขึ้นในช่องปาก มองไม่เห็นตัวฟัน",w:"ฟันยังไม่ขึ้น → รหัส 8"}
+  ]},
+ {id:"k2",title:"หญิง อายุ 24 ปี",level:"ปานกลาง",intro:"ผู้ป่วยรับการจัดฟันเมื่อ 3 ปีก่อน มีประวัติถอนฟันหลายซี่",
+  dmft:{D:2,M:1,F:1,T:4},
+  find:[
+   {f:"11",c:"T",t:"มุมฟันด้านตัดกะเทาะจากอุบัติเหตุเมื่อหลายปีก่อน เนื้อฟันแข็ง ไม่พบรอยผุ",w:"หักจากอุบัติเหตุและไม่ผุ → รหัส T ไม่นับใน DMFT"},
+   {f:"14",c:"3",t:"อุดคอมโพสิตที่ด้านประชิด ขอบเรียบ ไม่พบรอยผุ",w:"อุดแล้วและไม่ผุ → รหัส 3 นับเป็น F"},
+   {f:"24",c:"2",t:"มีวัสดุอุดคอมโพสิตที่ด้านบดเคี้ยว และมีโพรงผุที่ขอบวัสดุอุดด้านประชิด พื้นโพรงนิ่ม",w:"วัสดุอุดร่วมกับผุ → รหัส 2 นับเป็น D"},
+   {f:"36",c:"4",t:"ไม่มีฟันในตำแหน่งนี้ ผู้ป่วยแจ้งว่าถูกถอนเพราะผุลึกและปวด",w:"สูญเสียเพราะผุ → รหัส 4 นับเป็น M"},
+   {f:"45",c:"5",t:"ไม่มีฟันในตำแหน่งนี้ ถูกถอนเพื่อการจัดฟัน",w:"ถอนเพื่อจัดฟันเป็นสาเหตุอื่น → รหัส 5 ไม่นับใน DMFT"},
+   {f:"47",c:"1",t:"ตัวฟันถูกทำลายจากฟันผุจนเหลือแต่รากฟันโผล่พ้นเหงือก",w:"เหลือแต่รากจากผุ → รหัส 1 นับเป็น D"},
+   {f:"38",c:"8",t:"ยังไม่ขึ้นในช่องปาก มองไม่เห็นตัวฟัน",w:"ฟันยังไม่ขึ้น → รหัส 8"},
+   {f:"48",c:"8",t:"ยังไม่ขึ้นในช่องปาก มองไม่เห็นตัวฟัน",w:"ฟันยังไม่ขึ้น → รหัส 8"},
+   {f:"21",c:"0",t:"มีรอยขาวขุ่นที่ผิวเรียบด้านแก้ม ผิวไม่ยุบ เครื่องมือตรวจไม่พบโพรงหรือความนิ่ม",w:"รอยขาวขุ่นที่ยังไม่เป็นโพรงถือว่าปกติ → รหัส 0 ไม่ต้องเปลี่ยนรหัส"}
+  ]},
+ {id:"k3",title:"ชาย อายุ 35 ปี",level:"ปานกลาง",intro:"ผู้ป่วยมาตรวจสุขภาพช่องปากประจำปี มีการรักษาเดิมหลายซี่",
+  dmft:{D:2,M:1,F:2,T:5},
+  find:[
+   {f:"17",c:"1",t:"ด้านบดเคี้ยวมีโพรงผุ เครื่องมือสำรวจพบพื้นนิ่ม ไม่มีวัสดุอุด",w:"โพรงผุที่ยืนยันได้ → รหัส 1 นับเป็น D"},
+   {f:"16",c:"1",t:"มีวัสดุอุดชั่วคราวอยู่ในฟัน รอนัดอุดถาวร",w:"อุดชั่วคราวนับเป็นผุ → รหัส 1 นับเป็น D"},
+   {f:"11",c:"7",t:"มีวีเนียร์เซรามิกที่ผิวด้านริมฝีปากเพื่อความสวยงาม ไม่พบผุ",w:"วีเนียร์ที่ไม่ได้ทำเพราะผุ → รหัส 7 ไม่นับใน DMFT"},
+   {f:"36",c:"3",t:"อุดคอมโพสิตหลายด้าน สภาพวัสดุดี ไม่พบผุ",w:"อุดแล้วและไม่ผุ → รหัส 3 นับเป็น F"},
+   {f:"46",c:"3",t:"อุดอมัลกัมที่ด้านบดเคี้ยว สภาพดี ไม่พบผุ",w:"อุดแล้วและไม่ผุ → รหัส 3 นับเป็น F"},
+   {f:"34",c:"4",t:"ไม่มีฟันในตำแหน่งนี้ ประวัติระบุว่าถอนเพราะฟันผุ",w:"สูญเสียเพราะผุ → รหัส 4 นับเป็น M"},
+   {f:"38",c:"8",t:"ฟันคุดฝังอยู่ในกระดูก มองไม่เห็นตัวฟันในช่องปาก",w:"ยังไม่ขึ้นให้เห็นตัวฟัน → รหัส 8"},
+   {f:"48",c:"5",t:"ไม่มีฟันในตำแหน่งนี้ ถูกถอนเพราะเป็นฟันคุดขึ้นเอียง ไม่เกี่ยวกับฟันผุ",w:"ถอนด้วยสาเหตุอื่น → รหัส 5 ไม่นับใน DMFT"},
+   {f:"27",c:"0",t:"ร่องฟันมีคราบสีน้ำตาลเข้ม เครื่องมือสำรวจไม่ติดและไม่พบพื้นนิ่ม",w:"คราบสีที่ไม่มีหลักฐานผุ → รหัส 0 ไม่ต้องเปลี่ยนรหัส"}
+  ]},
+ {id:"k4",title:"เด็กหญิง อายุ 12 ปี",level:"ท้าทาย",intro:"อายุมาตรฐานที่ใช้เปรียบเทียบดัชนีฟันผุระดับประชากร ฟันแท้บางซี่ยังไม่ขึ้น ตรวจเฉพาะฟันแท้",
+  dmft:{D:2,M:0,F:1,T:3},
+  find:[
+   {f:"16",c:"6",t:"สารเคลือบหลุมร่องฟันครบทั้งร่อง ผิวฟันไม่พบผุ",w:"sealant สภาพดีและไม่ผุ → รหัส 6 ไม่นับใน DMFT"},
+   {f:"26",c:"1",t:"มีสารเคลือบหลุมร่องฟันอยู่ แต่พบโพรงผุที่ขอบสารเคลือบด้านบดเคี้ยว พื้นโพรงนิ่ม",w:"sealant แต่ผุ → รหัส 1 นับเป็น D"},
+   {f:"36",c:"3",t:"อุดคอมโพสิตที่ด้านบดเคี้ยว สภาพดี ไม่พบผุ",w:"อุดแล้วและไม่ผุ → รหัส 3 นับเป็น F"},
+   {f:"46",c:"1",t:"มีโพรงผุที่ด้านบดเคี้ยว และมีวัสดุอุดชั่วคราวปิดอยู่",w:"อุดชั่วคราวนับเป็นผุ → รหัส 1 นับเป็น D"},
+   {f:"11",c:"0",t:"มีรอยขาวขุ่นรอบขอบเหงือกด้านแก้ม ผิวเรียบ ไม่ยุบ เครื่องมือไม่พบโพรง",w:"รอยขาวขุ่นที่ยังไม่เป็นโพรงถือว่าปกติ → รหัส 0 ไม่ต้องเปลี่ยนรหัส"},
+   {f:"21",c:"T",t:"มุมฟันด้านตัดกะเทาะจากการล้ม เนื้อฟันแข็ง ไม่พบรอยผุ",w:"หักจากอุบัติเหตุและไม่ผุ → รหัส T ไม่นับใน DMFT"},
+   {f:"17",c:"8",t:"ยังไม่ขึ้น เหงือกยังปิดคลุมอยู่",w:"ฟันยังไม่ขึ้น → รหัส 8"},
+   {f:"27",c:"8",t:"ยังไม่ขึ้น เหงือกยังปิดคลุมอยู่",w:"ฟันยังไม่ขึ้น → รหัส 8"},
+   {f:"37",c:"8",t:"ยังไม่ขึ้น เหงือกยังปิดคลุมอยู่",w:"ฟันยังไม่ขึ้น → รหัส 8"},
+   {f:"47",c:"8",t:"ยังไม่ขึ้น เหงือกยังปิดคลุมอยู่",w:"ฟันยังไม่ขึ้น → รหัส 8"},
+   {f:"18",c:"8",t:"ยังไม่ขึ้นในช่องปาก",w:"ฟันยังไม่ขึ้น → รหัส 8"},
+   {f:"28",c:"8",t:"ยังไม่ขึ้นในช่องปาก",w:"ฟันยังไม่ขึ้น → รหัส 8"},
+   {f:"38",c:"8",t:"ยังไม่ขึ้นในช่องปาก",w:"ฟันยังไม่ขึ้น → รหัส 8"},
+   {f:"48",c:"8",t:"ยังไม่ขึ้นในช่องปาก",w:"ฟันยังไม่ขึ้น → รหัส 8"}
+  ]},
+ {id:"k5",title:"หญิง อายุ 42 ปี",level:"ท้าทาย",intro:"มีการรักษาหลายรูปแบบ ทั้งฟันผุค้าง วัสดุอุดเก่า และฟันที่ตรวจไม่ได้",
+  dmft:{D:5,M:1,F:2,T:8},
+  find:[
+   {f:"12",c:"1",t:"ด้านประชิดมีโพรงผุชัดเจน ยังไม่มีวัสดุอุด",w:"โพรงผุที่ยืนยันได้ → รหัส 1 นับเป็น D"},
+   {f:"11",c:"7",t:"มีวีเนียร์เซรามิกที่ผิวด้านริมฝีปากเพื่อความสวยงาม ไม่พบผุ",w:"วีเนียร์ที่ไม่ได้ทำเพราะผุ → รหัส 7"},
+   {f:"16",c:"9",t:"มีแบนด์จัดฟันครอบคลุมทั้งตัวฟัน ไม่สามารถตรวจผิวฟันได้",w:"ตรวจไม่ได้ → รหัส 9 ไม่นับใน DMFT"},
+   {f:"25",c:"2",t:"มีวัสดุอุดเดิมอยู่ และมีโพรงผุที่ขอบวัสดุอุดชัดเจน",w:"วัสดุอุดร่วมกับผุ → รหัส 2 นับเป็น D"},
+   {f:"26",c:"4",t:"ไม่มีฟันในตำแหน่งนี้ ข้อมูลผู้ป่วยระบุว่าถอนเพราะผุลึก",w:"สูญเสียเพราะผุ → รหัส 4 นับเป็น M"},
+   {f:"27",c:"1",t:"มีสารเคลือบหลุมร่องฟันอยู่ แต่พบโพรงผุที่ขอบสารเคลือบ พื้นโพรงนิ่ม",w:"sealant แต่ผุ → รหัส 1 นับเป็น D"},
+   {f:"36",c:"3",t:"อุดอมัลกัมสภาพดี ไม่พบผุ",w:"อุดแล้วและไม่ผุ → รหัส 3 นับเป็น F"},
+   {f:"37",c:"3",t:"อุดอมัลกัมสภาพดี ไม่พบผุ",w:"อุดแล้วและไม่ผุ → รหัส 3 นับเป็น F"},
+   {f:"44",c:"T",t:"มุมฟันกะเทาะจากอุบัติเหตุกระแทก เนื้อฟันแข็ง ไม่พบผุ",w:"หักจากอุบัติเหตุและไม่ผุ → รหัส T"},
+   {f:"45",c:"5",t:"ไม่มีฟันในตำแหน่งนี้ ถูกถอนเพื่อการจัดฟัน",w:"ถอนเพื่อจัดฟัน → รหัส 5 ไม่นับใน DMFT"},
+   {f:"46",c:"1",t:"ตัวฟันผุจนหักหมด เหลือแต่รากฟัน",w:"เหลือแต่รากจากผุ → รหัส 1 นับเป็น D"},
+   {f:"47",c:"1",t:"มีวัสดุอุดชั่วคราวอยู่ในฟัน",w:"อุดชั่วคราวนับเป็นผุ → รหัส 1 นับเป็น D"},
+   {f:"38",c:"5",t:"ไม่มีฟันในตำแหน่งนี้ ถูกถอนเพราะเป็นฟันคุด",w:"ถอนด้วยสาเหตุอื่น → รหัส 5"},
+   {f:"48",c:"8",t:"ยังไม่ขึ้นในช่องปาก มองไม่เห็นตัวฟัน",w:"ฟันยังไม่ขึ้น → รหัส 8"},
+   {f:"22",c:"0",t:"ผิวฟันสึกเล็กน้อยที่ขอบตัด ไม่มีผุและไม่มีวัสดุอุด",w:"ผิวสึกโดยไม่ผุ → รหัส 0 ไม่ต้องเปลี่ยนรหัส"}
+  ]}
+];
+
+/* ---------- data: primary-teeth (deft) cases ---------- */
+var CASES_PRIM=[
+ {id:"p1",dent:"prim",title:"เด็กชาย อายุ 3 ปี",level:"ง่าย",intro:"ตรวจสุขภาพช่องปากเด็กเล็กที่ศูนย์พัฒนาเด็กเล็ก ฟันน้ำนมบางซี่ยังขึ้นไม่เต็มที่ ตรวจเฉพาะฟันน้ำนม",
+  dmft:{D:1,M:0,F:0,T:1},
+  find:[
+   {f:"74",c:"1",t:"ด้านบดเคี้ยวมีโพรงผุชัดเจน เครื่องมือสำรวจพบพื้นโพรงนิ่ม ไม่มีวัสดุอุด",w:"โพรงผุที่ยืนยันได้ → รหัส 1 นับเป็น d"},
+   {f:"84",c:"0",t:"ผิวเรียบ ไม่พบรอยผุและไม่มีวัสดุอุด",w:"ฟันปกติ → รหัส 0 ไม่ต้องเปลี่ยนรหัส"},
+   {f:"55",c:"8",t:"ยังไม่ขึ้นในช่องปาก มองไม่เห็นตัวฟัน",w:"ฟันน้ำนมซี่นี้ยังไม่ขึ้น → รหัส 8 ไม่นับใน deft"},
+   {f:"65",c:"8",t:"ยังไม่ขึ้นในช่องปาก มองไม่เห็นตัวฟัน",w:"ฟันน้ำนมซี่นี้ยังไม่ขึ้น → รหัส 8 ไม่นับใน deft"},
+   {f:"51",c:"0",t:"ผิวเรียบ ไม่พบรอยผุ",w:"ฟันปกติ → รหัส 0 ไม่ต้องเปลี่ยนรหัส"}
+  ]},
+ {id:"p2",dent:"prim",title:"เด็กหญิง อายุ 5 ปี",level:"ปานกลาง",intro:"ตรวจสุขภาพช่องปากในโรงเรียนอนุบาล มีทั้งฟันผุ ฟันอุด และฟันที่ถูกถอนก่อนวัยเนื่องจากผุลึก ตรวจเฉพาะฟันน้ำนม",
+  dmft:{D:2,M:1,F:1,T:4},
+  find:[
+   {f:"54",c:"1",t:"ด้านบดเคี้ยวมีโพรงผุชัดเจน ไม่มีวัสดุอุด",w:"โพรงผุที่ยืนยันได้ → รหัส 1 นับเป็น d"},
+   {f:"64",c:"2",t:"มีวัสดุอุดอยู่ และพบโพรงผุที่ขอบวัสดุอุดด้านประชิด",w:"วัสดุอุดร่วมกับผุ → รหัส 2 นับเป็น d"},
+   {f:"65",c:"3",t:"อุดคอมโพสิตสภาพดี ไม่พบรอยผุ",w:"อุดแล้วและไม่ผุ → รหัส 3 นับเป็น f"},
+   {f:"85",c:"4",t:"ไม่มีฟันในตำแหน่งนี้ ผู้ปกครองแจ้งว่าถูกถอนเพราะผุลึกปวดฟัน ก่อนถึงวัยที่ควรหลุดตามธรรมชาติ",w:"สูญเสียเพราะผุก่อนวัยอันควร → รหัส 4 นับเป็น e (missing due to caries)"},
+   {f:"75",c:"6",t:"ร่องฟันด้านบดเคี้ยวมีสารเคลือบหลุมร่องฟันครบร่อง ไม่พบผุ",w:"มี sealant และไม่ผุ → รหัส 6 ไม่นับใน deft"},
+   {f:"53",c:"T",t:"มุมฟันบิ่นจากอุบัติเหตุหกล้ม เนื้อฟันแข็ง ไม่พบผุ",w:"หักจากอุบัติเหตุและไม่ผุ → รหัส T ไม่นับใน deft"},
+   {f:"51",c:"0",t:"ผิวเรียบ ไม่พบรอยผุ",w:"ฟันปกติ → รหัส 0 ไม่ต้องเปลี่ยนรหัส"}
+  ]},
+ {id:"p3",dent:"prim",title:"เด็กชาย อายุ 6 ปี",level:"ท้าทาย",intro:"ช่วงเปลี่ยนผ่านสู่ฟันแท้ มีทั้งฟันผุซ้ำใต้ sealant เดิม ฟันที่ถูกถอนเพราะผุ และฟันที่หลุดเองตามวัยซึ่งไม่นับเป็นการสูญเสียจากผุ ตรวจเฉพาะฟันน้ำนม",
+  dmft:{D:3,M:1,F:1,T:5},
+  find:[
+   {f:"55",c:"1",t:"ด้านบดเคี้ยวมีโพรงผุชัดเจน ไม่มีวัสดุอุด",w:"โพรงผุที่ยืนยันได้ → รหัส 1 นับเป็น d"},
+   {f:"65",c:"1",t:"มีสารเคลือบหลุมร่องฟันเดิมอยู่ แต่พบโพรงผุที่ขอบสารเคลือบ พื้นโพรงนิ่ม",w:"sealant แต่ผุ → รหัส 1 นับเป็น d ไม่ใช่รหัส 6"},
+   {f:"84",c:"2",t:"มีวัสดุอุดอยู่ และพบโพรงผุใหม่ที่ขอบวัสดุอุด",w:"วัสดุอุดร่วมกับผุ → รหัส 2 นับเป็น d"},
+   {f:"75",c:"3",t:"อุดคอมโพสิตสภาพดี ไม่พบรอยผุ",w:"อุดแล้วและไม่ผุ → รหัส 3 นับเป็น f"},
+   {f:"74",c:"4",t:"ไม่มีฟันในตำแหน่งนี้ ผู้ปกครองแจ้งว่าถูกถอนเพราะผุลึกปวดฟันมาก่อน",w:"สูญเสียเพราะผุ → รหัส 4 นับเป็น e"},
+   {f:"51",c:"5",t:"ไม่มีฟันในตำแหน่งนี้ ฟันหลุดเองตามวัยเนื่องจากฟันแท้ซี่ทดแทนกำลังขึ้น ไม่ใช่เพราะฟันผุ",w:"หลุดเองตามธรรมชาติเป็นสาเหตุอื่น → รหัส 5 ไม่นับใน deft (ไม่ใช่รหัส 4)"},
+   {f:"61",c:"0",t:"ผิวเรียบ ไม่พบรอยผุ",w:"ฟันปกติ → รหัส 0 ไม่ต้องเปลี่ยนรหัส"}
+  ]}
+];
+
+/* ---------- tooth chart ---------- */
+var SHAPES={
+ inc:{d:"M0 3 C-4 15 -9 31 -11 46 L-12 81 Q-12 87 -7 87 L7 87 Q12 87 12 81 L11 46 C9 31 4 15 0 3Z",det:"M-11 46 Q0 51 11 46",sx:1},
+ can:{d:"M0 2 C-4 15 -9 31 -11 46 L-13 74 Q-13 77 -11 79 L0 93 L11 79 Q13 77 13 74 L11 46 C9 31 4 15 0 2Z",det:"M-11 46 Q0 51 11 46",sx:1},
+ pre:{d:"M-3 3 C-7 18 -12 33 -14 46 L-15 78 Q-15 84 -10 84 L-5 87 Q0 82 5 87 L10 84 Q15 84 15 78 L14 46 C12 33 7 18 3 3 Q0 1 -3 3Z",det:"M-14 46 Q0 51 14 46",sx:1},
+ mol:{d:"M-14 3 C-19 18 -21 32 -22 46 L-23 78 Q-23 85 -17 85 L-9 88 Q-4 82 0 84 Q4 82 9 88 L17 85 Q23 85 23 78 L22 46 C21 32 19 18 14 3 C10 14 6 28 0 34 C-6 28 -10 14 -14 3Z",det:"M-22 46 Q0 52 22 46",sx:0.92}
+};
+function chartSVG(dent,cfg){
+  var per=dent==="perm"?8:5,slot=dent==="perm"?46:62,M=44,W=M*2+slot*per*2,mid=W/2,gx=dent==="perm"?1:1.1;
+  var ry=dent==="perm"?95:75,topApex=28,H=dent==="perm"?480:440,bottomApex=H-topApex,gy=(topApex+bottomApex)/2,rxHalf=mid-M;
+  function curveY(cx,up){
+    var u=(cx-mid)/rxHalf;if(u>1)u=1;if(u<-1)u=-1;
+    var c=Math.cos(u*Math.PI/2);
+    return up?(topApex+ry*c):(bottomApex-ry*c);
+  }
+  function gumPath(up){
+    var pts=[],x0=M,x1=W-M,step=8,x;
+    for(x=x0;x<x1;x+=step)pts.push(x.toFixed(1)+" "+curveY(x,up).toFixed(1));
+    pts.push(x1.toFixed(1)+" "+curveY(x1,up).toFixed(1));
+    return "M"+pts.join(" L");
+  }
+  var s='<svg class="chart'+(cfg.nums?"":" nonum")+(cfg.hint?"":" nohint")+'" viewBox="0 0 '+W+" "+H+'" role="group" aria-label="แผนภาพฟัน'+(dent==="perm"?"แท้":"น้ำนม")+' มองจากด้านหน้าผู้ป่วย เรียงโค้งตามแนวขากรรไกร" data-dent="'+dent+'">';
+  s+='<path class="gumBack" d="'+gumPath(true)+'"/><path class="gumBack" d="'+gumPath(false)+'"/>';
+  s+='<path class="gumFront" d="'+gumPath(true)+'"/><path class="gumFront" d="'+gumPath(false)+'"/>';
+  s+='<line class="axis" x1="'+mid+'" y1="4" x2="'+mid+'" y2="'+(H-4)+'"/><line class="axis" x1="'+(M-10)+'" y1="'+gy+'" x2="'+(W-M+10)+'" y2="'+gy+'"/>';
+  s+='<text class="side" x="'+(M-6)+'" y="'+(gy-8)+'">ขวาของผู้ป่วย (R)</text><text class="side" x="'+(W-M+6)+'" y="'+(gy-8)+'" text-anchor="end">ซ้ายของผู้ป่วย (L)</text>';
+  var qbase=dent==="perm"?0:4;
+  s+='<text class="hint" x="'+(mid-26)+'" y="'+(gy-8)+'">'+(qbase+1)+'</text><text class="hint" x="'+(mid+26)+'" y="'+(gy-8)+'">'+(qbase+2)+'</text>';
+  s+='<text class="hint" x="'+(mid+26)+'" y="'+(gy+30)+'">'+(qbase+3)+'</text><text class="hint" x="'+(mid-26)+'" y="'+(gy+30)+'">'+(qbase+4)+'</text>';
+  TEETH[dent].forEach(function(t){
+    var idx=t.side==="R"?per-t.n:per+t.n-1,cx=M+slot*idx+slot/2,up=t.arch==="U",base=curveY(cx,up),P=SHAPES[t.type],sx=P.sx*gx;
+    var aria=cfg.aria==="full"?"ฟัน "+t.code+" "+t.full:"ฟันซี่ที่ "+(idx+1)+" แถว"+(up?"บน":"ล่าง")+" นับจากซ้ายของแผนภาพ";
+    s+='<g class="tooth c-0" data-code="'+t.code+'" tabindex="0" role="button" aria-label="'+aria+'" transform="translate('+cx+" "+base+')">';
+    s+='<rect class="hit" x="'+(-slot/2)+'" y="'+(up?-4:-96)+'" width="'+slot+'" height="100"/>';
+    s+='<g transform="scale('+sx+" "+(up?1:-1)+')"><path class="shape" d="'+P.d+'"/><path class="det" d="'+P.det+'"/></g>';
+    var k=up?1:-1;
+    s+='<g class="mark"><line x1="-13" y1="'+(28*k)+'" x2="13" y2="'+(80*k)+'"/><line x1="13" y1="'+(28*k)+'" x2="-13" y2="'+(80*k)+'"/></g>';
+    s+='<text class="ctext" x="0" y="'+(70*k)+'"></text><text class="badge" x="0" y="'+(50*k)+'"></text></g>';
+    s+='<text class="num" x="'+cx+'" y="'+(base+(up?-10:18))+'">'+t.code+'</text>';
+  });
+  return s+"</svg>";
+}
+function mountChart(host,dent,cfg){
+  cfg=cfg||{};
+  host.innerHTML=chartSVG(dent,cfg);
+  var svg=host.firstElementChild,map={};
+  $$(".tooth",svg).forEach(function(g){map[g.getAttribute("data-code")]=g;});
+  var api={svg:svg,map:map,dent:dent,onPick:null,
+    mark:function(code,cls,on){var g=map[code];if(g)g.classList.toggle(cls,on===undefined?true:on);},
+    clear:function(){var cl=Array.prototype.slice.call(arguments);Object.keys(map).forEach(function(k){cl.forEach(function(c){map[k].classList.remove(c);});});},
+    setCode:function(code,c){var g=map[code];if(!g)return;Array.prototype.slice.call(g.classList).forEach(function(x){if(x.indexOf("c-")===0)g.classList.remove(x);});g.classList.add("c-"+c);g.querySelector(".ctext").textContent=(c==="0"?"":c);},
+    badge:function(code,txt){var g=map[code];if(g)g.querySelector(".badge").textContent=txt||"";},
+    fill:function(code,color){var g=map[code];if(g)g.querySelector(".shape").style.fill=color||"";},
+    setHelp:function(on){svg.classList.toggle("nonum",!on);svg.classList.toggle("nohint",!on);}
+  };
+  svg.addEventListener("click",function(e){var g=e.target.closest?e.target.closest(".tooth"):null;if(g&&api.onPick)api.onPick(g.getAttribute("data-code"));});
+  svg.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){var g=e.target.closest?e.target.closest(".tooth"):null;if(g){e.preventDefault();if(api.onPick)api.onPick(g.getAttribute("data-code"));}}});
+  return api;
+}
+
+/* ---------- navigation & mode ---------- */
+var VIEWS=["intro","fdi","guide","code","clinic","case","result"];
+function show(v){
+  VIEWS.forEach(function(id){$("#view-"+id).hidden=(id!==v);});
+  $$(".tabs button").forEach(function(b){b.setAttribute("aria-selected",b.getAttribute("data-view")===v?"true":"false");});
+  if(v==="result")renderResult();
+  window.scrollTo(0,0);
+}
+function wireGoButtons(root){
+  $$("[data-go]",root).forEach(function(b){b.addEventListener("click",function(){show(b.getAttribute("data-go"));});});
+}
+function goGuide(code){
+  show("guide");
+  setTimeout(function(){
+    var el=document.getElementById("guide-c"+code);
+    if(!el)return;
+    el.scrollIntoView({behavior:"smooth",block:"center"});
+    el.classList.add("flash");
+    setTimeout(function(){el.classList.remove("flash");},1600);
+  },60);
+}
+function wireGuideLinks(root){
+  $$("[data-guide]",root).forEach(function(b){b.addEventListener("click",function(){goGuide(b.getAttribute("data-guide"));});});
+}
+function applyMode(){
+  $$(".mode button").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-mode")===S.mode?"true":"false");});
+  $("#mode-note").textContent=S.mode==="assess"
+    ?"โหมดประเมิน: ปิดตัวช่วยและตารางรหัส ผลทุกข้อถูกบันทึกไว้ในหน้าสรุปผล"
+    :"โหมดฝึก: เปิดตัวช่วยและคำอธิบายรหัส ผลไม่ถูกนับในหน้าสรุปผล";
+}
+$$(".tabs button").forEach(function(b){b.addEventListener("click",function(){show(b.getAttribute("data-view"));});});
+$$(".mode button").forEach(function(b){b.addEventListener("click",function(){S.mode=b.getAttribute("data-mode");store.set("mode",S.mode);applyMode();});});
+$("#in-name").value=S.name;$("#in-sid").value=S.sid;
+$("#in-name").addEventListener("input",function(e){S.name=e.target.value;store.set("name",S.name);});
+$("#in-sid").addEventListener("input",function(e){S.sid=e.target.value;store.set("sid",S.sid);});
+
+/* ---------- intro ---------- */
+var I={chart:null};
+function introMount(dent){
+  $$(".segbtn").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-dent")===dent?"true":"false");});
+  I.chart=mountChart($("#intro-chart"),dent,{nums:true,hint:true,aria:"full"});
+  I.chart.onPick=function(code){
+    I.chart.clear("is-sel");I.chart.mark(code,"is-sel");
+    var t=BYCODE[code];
+    $("#intro-info").innerHTML='<p class="bigcode">'+code+'</p><div><p style="margin:0"><b>'+esc(t.full)+'</b> ของผู้ป่วย</p><p class="why">'+esc(explainFDI(t))+'</p></div>';
+  };
+  I.chart.onPick(dent==="perm"?"36":"75");
+}
+$$(".segbtn").forEach(function(b){b.addEventListener("click",function(){introMount(b.getAttribute("data-dent"));});});
+(function(){
+  var h='<thead><tr><th>รหัส</th><th>สภาพ</th><th>นับใน</th></tr></thead><tbody>';
+  CODES.forEach(function(x){
+    h+='<tr><td class="c">'+x.c+'</td><td><b>'+esc(x.n)+'</b><br><span class="note">'+esc(x.d)+'</span></td><td>'+(x.k?'<span class="tag '+x.k+'">'+x.k+'</span>':'<span class="note">ไม่นับ</span>')+'</td></tr>';
+  });
+  $("#code-table").innerHTML=h+"</tbody>";
+})();
+
+/* ---------- ICDAS study guide ---------- */
+(function(){
+  var groups=[["early","1. ระยะเริ่มต้น (Early Stage) — ยังไม่เป็นรูผุชัดเจน"],["established","2. ระยะปานกลาง (Established Stage) — เริ่มสูญเสียโครงสร้างฟัน"],["severe","3. ระยะรุนแรง (Severe Stage) — ผุเป็นรูขนาดใหญ่"]];
+  var stageTag={early:"g",established:"a",severe:"r"};
+  var h="";
+  groups.forEach(function(g){
+    var st=g[0];
+    h+='<h3 class="stagehead">'+g[1]+'<span class="tag '+stageTag[st]+'">'+ICDAS_STAGE[st]+"</span></h3>";
+    h+='<div class="guidegrid">';
+    CODES_ICDAS.filter(function(x){return x.stage===st;}).forEach(function(x){
+      h+='<div class="guidecard" id="guide-c'+x.c+'"><div class="gc-head"><span class="gc-code">'+x.c+'</span><span class="gc-name">'+esc(x.n)+'</span></div><p>'+x.gh+"</p></div>";
+    });
+    h+="</div>";
+  });
+  $("#guide-body").innerHTML=h;
+  wireGoButtons(document);
+})();
+
+/* ---------- FDI module ---------- */
+var FT={c2k:"รหัส → คลิกตำแหน่ง",n2k:"ชื่อฟัน → คลิกตำแหน่ง",k2c:"ตำแหน่ง → พิมพ์รหัส",c2n:"รหัส → ชื่อฟันและตำแหน่ง"};
+var F={sess:null,chart:null};
+function makeOptions(t){
+  var cands=[partner(t,LR),null,partner(t,UD),partner(t,DG)];
+  var per=t.dent==="perm"?8:5;
+  cands[1]=BYCODE[""+t.q+(t.n<per?t.n+1:t.n-1)];
+  var opts=[t],seen={};seen[t.code]=true;
+  cands.forEach(function(c){if(c&&!seen[c.code]&&opts.length<4){seen[c.code]=true;opts.push(c);}});
+  var pool=shuffle(TEETH[t.dent].slice());
+  pool.forEach(function(c){if(!seen[c.code]&&opts.length<4){seen[c.code]=true;opts.push(c);}});
+  return shuffle(opts.map(function(o){return {code:o.code,label:o.full};}));
+}
+function makeQ(type,t){
+  var q={type:type,code:t.code};
+  if(type==="c2k")q.prompt="คลิกที่ฟันรหัส <b>"+t.code+"</b>";
+  else if(type==="n2k")q.prompt="คลิกที่ <b>"+esc(t.full)+"</b> ของผู้ป่วย";
+  else if(type==="k2c")q.prompt="ฟันที่ไฮไลต์อยู่ในแผนภาพมีรหัสอะไร";
+  else{q.prompt="ฟันรหัส <b>"+t.code+"</b> คือฟันซี่ใด";q.options=makeOptions(t);}
+  return q;
+}
+$("#fdi-form").addEventListener("submit",function(e){e.preventDefault();fdiStart();});
+function fdiStart(){
+  var fd=new FormData($("#fdi-form")),dent=fd.get("dent")||"perm",types=fd.getAll("ft"),n=parseInt(fd.get("n"),10)||10;
+  if(!types.length){$("#fdi-formmsg").textContent="เลือกรูปแบบคำถามอย่างน้อย 1 แบบ";return;}
+  $("#fdi-formmsg").textContent="";
+  var teeth=shuffle(TEETH[dent].slice()),seq=[];
+  for(var i=0;i<n;i++)seq.push(types[i%types.length]);
+  shuffle(seq);
+  var qs=seq.map(function(type,i){return makeQ(type,teeth[i%teeth.length]);});
+  F.sess={dent:dent,mode:S.mode,qs:qs,i:0,ok:0,answered:false,t0:0,run:Date.now(),results:[]};
+  var practice=F.sess.mode==="practice";
+  $("#fdi-setup").hidden=true;$("#fdi-done").hidden=true;$("#fdi-run").hidden=false;
+  F.chart=mountChart($("#fdi-chart"),dent,{nums:practice,hint:practice});
+  $("#fdi-help").hidden=!practice;$("#fdi-shownum").checked=practice;
+  fdiShow();
+}
+$("#fdi-shownum").addEventListener("change",function(e){if(F.chart)F.chart.setHelp(e.target.checked);});
+function fdiShow(){
+  var s=F.sess,q=s.qs[s.i];
+  s.answered=false;s.t0=Date.now();
+  $("#fdi-prog").textContent="ข้อ "+(s.i+1)+" จาก "+s.qs.length;
+  $("#fdi-bar").style.width=(s.i/s.qs.length*100)+"%";
+  $("#fdi-acc").textContent=s.i?"ถูก "+s.ok+" จาก "+s.i:"";
+  $("#fdi-q").innerHTML=q.prompt;$("#fdi-fb").innerHTML="";$("#fdi-next").hidden=true;
+  F.chart.clear("is-target","is-ok","is-bad");
+  Object.keys(F.chart.map).forEach(function(c){F.chart.badge(c,"");});
+  F.chart.onPick=null;
+  $("#fdi-chart").hidden=(q.type==="c2n");
+  var ans=$("#fdi-answer");ans.innerHTML="";
+  if(q.type==="c2k"||q.type==="n2k"){
+    ans.innerHTML='<p class="hintline">คลิกที่ซี่ฟันบนแผนภาพเพื่อตอบ</p>';
+    F.chart.onPick=function(code){fdiSubmit(code);};
+  }else if(q.type==="k2c"){
+    F.chart.mark(q.code,"is-target");
+    ans.innerHTML='<form id="fdi-typed" class="typed"><label>รหัสฟัน 2 หลัก<input id="fdi-code" type="text" inputmode="numeric" maxlength="2" autocomplete="off"></label><button class="btn primary" type="submit">ตอบ</button></form><p class="msg" id="fdi-typedmsg" role="alert"></p>';
+    $("#fdi-typed").addEventListener("submit",function(e){
+      e.preventDefault();var v=$("#fdi-code").value.trim();
+      if(!/^[0-9]{2}$/.test(v)){$("#fdi-typedmsg").textContent="กรอกตัวเลข 2 หลัก";return;}
+      fdiSubmit(v);
+    });
+    $("#fdi-code").focus();
+  }else{
+    ans.innerHTML='<div class="opts">'+q.options.map(function(o){return '<button type="button" class="btn opt" data-code="'+o.code+'">'+esc(o.label)+"</button>";}).join("")+"</div>";
+    $$(".opt",ans).forEach(function(b){b.addEventListener("click",function(){fdiSubmit(b.getAttribute("data-code"));});});
+  }
+}
+function fdiSubmit(given){
+  var s=F.sess;if(!s||s.answered)return;
+  s.answered=true;
+  var q=s.qs[s.i],t=BYCODE[q.code],ms=Date.now()-s.t0,ok=(given===q.code)?1:0;
+  if(ok)s.ok++;
+  var err=ok?"":fdiErr(q.code,given,s.dent);
+  var row={m:"fdi",sub:q.type,dent:s.dent,target:q.code,given:given,ok:ok,err:err,ms:ms,run:s.run};
+  s.results.push(row);
+  if(s.mode==="assess")record(row);
+  F.chart.onPick=null;F.chart.clear("is-target");
+  $("#fdi-chart").hidden=false;
+  F.chart.mark(q.code,ok?"is-ok":"is-target");
+  if(ok)F.chart.badge(q.code,"✓");
+  var g=BYCODE[given];
+  if(!ok&&g&&g.dent===s.dent){F.chart.mark(given,"is-bad");F.chart.badge(given,"✕");}
+  $$("#fdi-answer button,#fdi-answer input").forEach(function(x){x.disabled=true;});
+  if(q.type==="c2n")$$(".opt").forEach(function(b){var c=b.getAttribute("data-code");if(c===q.code)b.classList.add("ok");else if(c===given)b.classList.add("bad");});
+  var fb;
+  if(ok)fb='<div class="fb ok"><b>✓ ถูกต้อง</b> '+q.code+" = "+esc(t.full)+'<p class="why">'+esc(explainFDI(t))+"</p></div>";
+  else{
+    fb='<div class="fb bad"><b>✕ ยังไม่ถูก</b> '+(g&&g.dent===s.dent?"ที่ตอบคือ "+given+" ("+esc(g.full)+") ":"ที่ตอบคือ "+esc(given)+" ")+"คำตอบที่ถูกคือ <b>"+q.code+"</b> = "+esc(t.full)+'<p class="why">'+ERR[err]+" · "+esc(explainFDI(t))+"</p>";
+    if(err==="lr"||err==="diag")fb+='<p class="why">จำไว้ว่าซ้าย–ขวาคือของผู้ป่วย ผู้ตรวจหันหน้าเข้าหาผู้ป่วยจึงเห็นด้านขวาของผู้ป่วยอยู่ทางซ้ายมือ</p>';
+    fb+="</div>";
+  }
+  $("#fdi-fb").innerHTML=fb;
+  var nx=$("#fdi-next");nx.hidden=false;nx.textContent=(s.i+1>=s.qs.length)?"ดูผลสรุป":"ข้อต่อไป";nx.focus();
+}
+$("#fdi-next").addEventListener("click",function(){
+  var s=F.sess;if(!s||!s.answered)return;
+  s.i++;
+  if(s.i>=s.qs.length)fdiFinish();else fdiShow();
+});
+$("#fdi-quit").addEventListener("click",function(){F.sess=null;$("#fdi-run").hidden=true;$("#fdi-done").hidden=true;$("#fdi-setup").hidden=false;});
+function fdiSummaryHTML(rows){
+  var n=rows.length;if(!n)return '<p class="note">ยังไม่มีข้อมูล</p>';
+  var ok=rows.filter(function(r){return r.ok;}).length,avg=rows.reduce(function(a,r){return a+r.ms;},0)/n/1000;
+  var h='<p class="big"><b>'+ok+"</b> / "+n+" ข้อ · "+pct(ok,n)+"% · เฉลี่ย "+avg.toFixed(1)+" วินาทีต่อข้อ</p>";
+  h+='<div class="tblwrap"><table class="tbl"><thead><tr><th>รูปแบบคำถาม</th><th>ถูก</th><th>ความแม่นยำ</th><th>เวลาเฉลี่ย</th></tr></thead><tbody>';
+  Object.keys(FT).forEach(function(k){
+    var r=rows.filter(function(x){return x.sub===k;});if(!r.length)return;
+    var o=r.filter(function(x){return x.ok;}).length,a=r.reduce(function(z,x){return z+x.ms;},0)/r.length/1000;
+    h+="<tr><td>"+FT[k]+"</td><td>"+o+" / "+r.length+"</td><td>"+pct(o,r.length)+"%</td><td>"+a.toFixed(1)+" วินาที</td></tr>";
+  });
+  h+="</tbody></table></div>";
+  var ec={};rows.forEach(function(r){if(!r.ok&&r.err)ec[r.err]=(ec[r.err]||0)+1;});
+  var ks=Object.keys(ec);
+  if(ks.length){h+='<h3>ข้อผิดพลาดที่พบ</h3><ul class="plain">'+ks.sort(function(a,b){return ec[b]-ec[a];}).map(function(k){return "<li>"+ERR[k]+": "+ec[k]+" ข้อ</li>";}).join("")+"</ul>";}
+  return h;
+}
+function fdiFinish(){
+  var s=F.sess;
+  $("#fdi-run").hidden=true;$("#fdi-done").hidden=false;
+  var h='<h2>ผลแบบฝึก FDI</h2>'+fdiSummaryHTML(s.results);
+  h+=(s.mode==="assess"?'<p class="note">ผลชุดนี้ถูกบันทึกในหน้าสรุปผลแล้ว</p>':'<p class="note">โหมดฝึกไม่นับผลในหน้าสรุปผล</p>');
+  h+='<div class="row"><button class="btn primary" type="button" id="fdi-again">ทำอีกครั้ง</button>'+(s.mode==="assess"?'<button class="btn" type="button" id="fdi-toresult">ดูสรุปผลรวม</button>':"")+"</div>";
+  $("#fdi-done").innerHTML=h;
+  $("#fdi-again").addEventListener("click",function(){F.sess=null;$("#fdi-done").hidden=true;$("#fdi-setup").hidden=false;});
+  var b=$("#fdi-toresult");if(b)b.addEventListener("click",function(){show("result");});
+  window.scrollTo(0,0);
+}
+
+/* ---------- code drill module ---------- */
+var C={sess:null,chart:null};
+function buildPalette(host,practice,onPick){
+  host.innerHTML=CODES.map(function(x){
+    return '<button type="button" class="codebtn" data-c="'+x.c+'" aria-pressed="false" aria-label="รหัส '+x.c+(practice?" "+x.n:"")+'"><span class="cd">'+x.c+"</span>"+(practice?'<span class="cl">'+esc(x.s)+"</span>":"")+"</button>";
+  }).join("");
+  $$(".codebtn",host).forEach(function(b){b.addEventListener("click",function(){onPick(b.getAttribute("data-c"));});});
+}
+$("#code-form").addEventListener("submit",function(e){e.preventDefault();codeStart();});
+function codeStart(){
+  var n=parseInt(new FormData($("#code-form")).get("cn"),10)||ITEMS_ICDAS.length;
+  n=Math.min(n,ITEMS_ICDAS.length);
+  var pool=shuffle(ITEMS_ICDAS.slice()).slice(0,n).map(function(it){
+    return {id:it.id,dent:it.dent,tooth:it.tooth,code:it.code,vignette:it.vignette,explain:it.explain,options:shuffle(it.options.slice())};
+  });
+  C.sess={mode:S.mode,items:pool,i:0,ok:0,answered:false,t0:0,run:Date.now(),results:[]};
+  $("#code-setup").hidden=true;$("#code-done").hidden=true;$("#code-run").hidden=false;
+  codeShow();
+  window.scrollTo(0,0);
+}
+function codeShow(){
+  var s=C.sess,it=s.items[s.i];
+  s.answered=false;s.t0=Date.now();
+  $("#code-prog").textContent="ข้อ "+(s.i+1)+" จาก "+s.items.length;
+  $("#code-bar").style.width=(s.i/s.items.length*100)+"%";
+  $("#code-acc").textContent=s.i?"ถูก "+s.ok+" จาก "+s.i:"";
+  $("#code-text").textContent=it.vignette;$("#code-fb").innerHTML="";$("#code-next").hidden=true;
+  C.chart=mountChart($("#code-chart"),it.dent,{nums:false,hint:false,aria:"full"});
+  C.chart.mark(it.tooth,"is-clin");
+  $("#code-pal").innerHTML=it.options.map(function(c){return '<button type="button" class="btn opt" data-c="'+c+'">รหัส '+c+"</button>";}).join("");
+  $$("#code-pal .opt").forEach(function(b){b.addEventListener("click",function(){codeSubmit(b.getAttribute("data-c"));});});
+}
+function codeSubmit(given){
+  var s=C.sess;if(!s||s.answered)return;
+  s.answered=true;
+  var it=s.items[s.i],ok=given===it.code?1:0,ms=Date.now()-s.t0;
+  if(ok)s.ok++;
+  var row={m:"code",sub:it.id,dent:it.dent,tooth:it.tooth,target:it.code,given:given,ok:ok,ms:ms,run:s.run};
+  s.results.push(row);
+  if(s.mode==="assess")record(row);
+  $$("#code-pal .opt").forEach(function(b){var c=b.getAttribute("data-c");b.disabled=true;if(c===it.code)b.classList.add("ok");else if(c===given)b.classList.add("bad");});
+  $("#code-fb").innerHTML=ok
+    ?'<div class="fb ok"><b>✓ ถูกต้อง</b> '+esc(icdasLabel(it.code))+'<p class="why">'+esc(it.explain)+"</p></div>"
+    :'<div class="fb bad"><b>✕ ยังไม่ถูก</b> ที่ตอบคือ '+esc(icdasLabel(given))+" คำตอบที่ถูกคือ <b>"+esc(icdasLabel(it.code))+'</b><p class="why">'+esc(it.explain)+"</p></div>";
+  var nx=$("#code-next");nx.hidden=false;nx.textContent=(s.i+1>=s.items.length)?"ดูผลสรุป":"ข้อต่อไป";nx.focus();
+}
+$("#code-next").addEventListener("click",function(){
+  var s=C.sess;if(!s||!s.answered)return;
+  s.i++;if(s.i>=s.items.length)codeFinish();else codeShow();
+});
+$("#code-quit").addEventListener("click",function(){C.sess=null;$("#code-run").hidden=true;$("#code-done").hidden=true;$("#code-setup").hidden=false;});
+function confusions(rows){
+  var m={};
+  rows.forEach(function(r){if(!r.ok){var k=r.target+">"+r.given;m[k]=(m[k]||0)+1;}});
+  return Object.keys(m).map(function(k){var p=k.split(">");return {t:p[0],g:p[1],n:m[k]};}).sort(function(a,b){return b.n-a.n;});
+}
+function stageOf(c){var x=CBY_ICDAS[c];return x?x.stage:null;}
+function codeSummaryHTML(rows){
+  var n=rows.length;if(!n)return '<p class="note">ยังไม่มีข้อมูล</p>';
+  var ok=rows.filter(function(r){return r.ok;}).length,avg=rows.reduce(function(a,r){return a+r.ms;},0)/n/1000;
+  var h='<p class="big"><b>'+ok+"</b> / "+n+" ข้อ · "+pct(ok,n)+"% · เฉลี่ย "+avg.toFixed(1)+" วินาทีต่อข้อ</p>";
+  h+='<div class="tblwrap"><table class="tbl"><thead><tr><th>รหัส ICDAS</th><th>ลักษณะ</th><th>ถูก</th><th>ความแม่นยำ</th></tr></thead><tbody>';
+  CODEORDER_ICDAS.forEach(function(c){
+    var r=rows.filter(function(x){return x.target===c;});if(!r.length)return;
+    var o=r.filter(function(x){return x.ok;}).length,p=pct(o,r.length);
+    h+="<tr"+(o<r.length?' class="badrow"':"")+'><td class="c">'+c+"</td><td>"+esc(CBY_ICDAS[c].n)+"</td><td>"+o+" / "+r.length+"</td><td>"+meter(p)+"</td></tr>";
+  });
+  h+="</tbody></table></div>";
+  var stages={early:{n:0,ok:0},established:{n:0,ok:0},severe:{n:0,ok:0}};
+  rows.forEach(function(r){var st=stageOf(r.target);if(!st)return;stages[st].n++;if(r.ok)stages[st].ok++;});
+  if(n){
+    h+='<h3>ความแม่นยำแยกตามระยะความรุนแรง</h3><div class="tblwrap"><table class="tbl"><thead><tr><th>ระยะ</th><th>ถูก</th><th>ความแม่นยำ</th></tr></thead><tbody>';
+    ["early","established","severe"].forEach(function(st){
+      var a=stages[st];if(!a.n)return;
+      h+="<tr"+(a.ok<a.n?' class="badrow"':"")+"><td>"+ICDAS_STAGE[st]+"</td><td>"+a.ok+" / "+a.n+"</td><td>"+meter(pct(a.ok,a.n))+"</td></tr>";
+    });
+    h+="</tbody></table></div>";
+  }
+  var cf=confusions(rows);
+  if(cf.length){
+    h+='<h3>รหัสที่ตอบสลับกัน</h3><ul class="plain">'+cf.slice(0,6).map(function(x){
+      var cross=stageOf(x.t)!==stageOf(x.g);
+      return "<li>ควรเป็น "+esc(icdasLabel(x.t))+" แต่ตอบ "+esc(icdasLabel(x.g))+" · "+x.n+" ครั้ง"+(cross?" (คนละระยะความรุนแรง)":" (สับสนในระยะเดียวกัน)")+' · <button type="button" class="linklike" data-guide="'+x.t+'">ทบทวนในคู่มือ ICDAS</button></li>';
+    }).join("")+"</ul>";
+  }
+  return h;
+}
+function codeFinish(){
+  var s=C.sess;
+  $("#code-run").hidden=true;$("#code-done").hidden=false;
+  var h='<h2>ผลแบบฝึกรหัสสภาพฟัน (ICDAS)</h2>'+codeSummaryHTML(s.results);
+  h+=(s.mode==="assess"?'<p class="note">ผลชุดนี้ถูกบันทึกในหน้าสรุปผลแล้ว</p>':'<p class="note">โหมดฝึกไม่นับผลในหน้าสรุปผล</p>');
+  h+='<div class="row"><button class="btn primary" type="button" id="code-again">ทำอีกครั้ง</button>'+(s.mode==="assess"?'<button class="btn" type="button" id="code-toresult">ดูสรุปผลรวม</button>':"")+'<button class="btn quiet" type="button" data-go="guide">ทบทวนคู่มือ ICDAS</button></div>';
+  $("#code-done").innerHTML=h;
+  $("#code-again").addEventListener("click",function(){C.sess=null;$("#code-done").hidden=true;$("#code-setup").hidden=false;});
+  var b=$("#code-toresult");if(b)b.addEventListener("click",function(){show("result");});
+  wireGoButtons($("#code-done"));
+  wireGuideLinks($("#code-done"));
+  window.scrollTo(0,0);
+}
+
+/* ---------- clinical case quiz (fixed 6-item MCQ) ---------- */
+var CLINIC=[
+ {id:"c1",dent:"perm",code:"26",
+  vignette:"ผู้ป่วยหญิง อายุ 32 ปี มีอาการเสียวฟันเมื่อดื่มน้ำเย็น ตรวจพบรอยผุลึกที่ฟันกรามแท้ซี่ที่ 1 บนซ้าย (ตำแหน่งที่ไฮไลต์ในภาพ) รหัสฟันสากล (FDI) ของซี่นี้คือข้อใด",
+  options:["26","16","36","27"],
+  name:"ฟันกรามแท้ซี่ที่ 1 บนซ้าย (Permanent first molar, upper left)",
+  explain:"หลักแรก 2 = ควอดแรนท์บนซ้ายของผู้ป่วย หลักหลัง 6 = ฟันกรามซี่ที่ 1 (นับจากเส้นกึ่งกลางออกไปด้านหลังเป็นซี่ที่ 6) · 16 สลับซ้าย–ขวาเป็นบนขวา · 36 สลับบน–ล่างเป็นล่างซ้าย · 27 เป็นฟันกรามซี่ที่ 2 ตำแหน่งถัดไปในควอดแรนท์เดียวกัน"},
+ {id:"c2",dent:"perm",code:"11",
+  vignette:"ผู้ป่วยชาย อายุ 20 ปี ประสบอุบัติเหตุขณะเล่นกีฬา ฟันตัดซี่กลางบนขวา (ตำแหน่งที่ไฮไลต์ในภาพ) หักบิ่นที่มุมฟัน รหัสฟันสากลของซี่นี้คือข้อใด",
+  options:["11","21","41","12"],
+  name:"ฟันตัดซี่กลางบนขวา (Permanent central incisor, upper right)",
+  explain:"หลักแรก 1 = ควอดแรนท์บนขวาของผู้ป่วย หลักหลัง 1 = ฟันตัดซี่กลาง · 21 สลับซ้าย–ขวาเป็นบนซ้าย · 41 สลับบน–ล่างเป็นล่างขวา · 12 เป็นฟันตัดซี่ข้าง ตำแหน่งถัดไปในควอดแรนท์เดียวกัน"},
+ {id:"c3",dent:"perm",code:"47",
+  vignette:"ผู้ป่วยหญิง อายุ 45 ปี ปวดฟันเวลาเคี้ยวอาหารร้อน ตรวจพบรอยผุลึกที่ฟันกรามแท้ซี่ที่ 2 ล่างขวา (ตำแหน่งที่ไฮไลต์ในภาพ) รหัสฟันสากลของซี่นี้คือข้อใด",
+  options:["47","37","17","46"],
+  name:"ฟันกรามแท้ซี่ที่ 2 ล่างขวา (Permanent second molar, lower right)",
+  explain:"หลักแรก 4 = ควอดแรนท์ล่างขวาของผู้ป่วย หลักหลัง 7 = ฟันกรามซี่ที่ 2 · 37 สลับซ้าย–ขวาเป็นล่างซ้าย · 17 สลับบน–ล่างเป็นบนขวา · 46 เป็นฟันกรามซี่ที่ 1 ตำแหน่งข้างเคียงในควอดแรนท์เดียวกัน"},
+ {id:"c4",dent:"prim",code:"74",
+  vignette:"เด็กชาย อายุ 5 ขวบ มีอาการผุลึกจนเสียวฟัน ตรวจพบที่ฟันกรามน้ำนมซี่ที่ 1 ล่างซ้าย (ตำแหน่งที่ไฮไลต์ในภาพ) รหัสฟันสากลของซี่นี้คือข้อใด",
+  options:["74","84","64","75"],
+  name:"ฟันกรามน้ำนมซี่ที่ 1 ล่างซ้าย (Primary first molar, lower left)",
+  explain:"ฟันน้ำนมใช้หลักแรก 5–8 โดย 7 = ควอดแรนท์ล่างซ้ายของผู้ป่วย หลักหลัง 4 = ฟันกรามน้ำนมซี่ที่ 1 · 84 สลับซ้าย–ขวาเป็นล่างขวา · 64 สลับบน–ล่างเป็นบนซ้าย · 75 เป็นฟันกรามซี่ที่ 2 ตำแหน่งถัดไปในควอดแรนท์เดียวกัน"},
+ {id:"c5",dent:"prim",code:"53",
+  vignette:"เด็กหญิง อายุ 4 ขวบ หกล้มกระแทกฟัน ตรวจพบรอยร้าวที่ฟันเขี้ยวน้ำนมบนขวา (ตำแหน่งที่ไฮไลต์ในภาพ) รหัสฟันสากลของซี่นี้คือข้อใด",
+  options:["53","63","83","52"],
+  name:"ฟันเขี้ยวน้ำนมบนขวา (Primary canine, upper right)",
+  explain:"หลักแรก 5 = ควอดแรนท์บนขวาของผู้ป่วยในฟันน้ำนม หลักหลัง 3 = ฟันเขี้ยว · 63 สลับซ้าย–ขวาเป็นบนซ้าย · 83 สลับบน–ล่างเป็นล่างขวา · 52 เป็นฟันตัดซี่ข้าง ตำแหน่งถัดไปในควอดแรนท์เดียวกัน"},
+ {id:"c6",dent:"prim",code:"85",
+  vignette:"เด็กชาย อายุ 6 ขวบ ปวดฟันเวลาเคี้ยว ตรวจพบรอยผุลึกที่ฟันกรามน้ำนมซี่ที่ 2 ล่างขวา (ตำแหน่งที่ไฮไลต์ในภาพ) รหัสฟันสากลของซี่นี้คือข้อใด",
+  options:["85","75","55","84"],
+  name:"ฟันกรามน้ำนมซี่ที่ 2 ล่างขวา (Primary second molar, lower right)",
+  explain:"หลักแรก 8 = ควอดแรนท์ล่างขวาของผู้ป่วยในฟันน้ำนม หลักหลัง 5 = ฟันกรามซี่ที่ 2 · 75 สลับซ้าย–ขวาเป็นล่างซ้าย · 55 สลับบน–ล่างเป็นบนขวา · 84 เป็นฟันกรามซี่ที่ 1 ตำแหน่งข้างเคียงในควอดแรนท์เดียวกัน"}
+];
+var CQ={sess:null,chart:null};
+$("#clinic-start").addEventListener("click",clinicStart);
+function clinicStart(){
+  var items=CLINIC.map(function(it){return {id:it.id,dent:it.dent,code:it.code,vignette:it.vignette,name:it.name,explain:it.explain,options:shuffle(it.options.slice())};});
+  CQ.sess={mode:S.mode,items:items,i:0,ok:0,answered:false,t0:0,run:Date.now(),results:[]};
+  $("#clinic-setup").hidden=true;$("#clinic-done").hidden=true;$("#clinic-run").hidden=false;
+  clinicShow();
+  window.scrollTo(0,0);
+}
+function clinicShow(){
+  var s=CQ.sess,it=s.items[s.i];
+  s.answered=false;s.t0=Date.now();
+  $("#clinic-prog").textContent="ข้อ "+(s.i+1)+" จาก "+s.items.length;
+  $("#clinic-bar").style.width=(s.i/s.items.length*100)+"%";
+  $("#clinic-acc").textContent=s.i?"ถูก "+s.ok+" จาก "+s.i:"";
+  $("#clinic-vignette").textContent=it.vignette;
+  $("#clinic-fb").innerHTML="";$("#clinic-next").hidden=true;
+  CQ.chart=mountChart($("#clinic-chart"),it.dent,{nums:false,hint:false,aria:"full"});
+  CQ.chart.mark(it.code,"is-clin");
+  $("#clinic-opts").innerHTML=it.options.map(function(c){return '<button type="button" class="btn opt" data-c="'+c+'">'+c+"</button>";}).join("");
+  $$("#clinic-opts .opt").forEach(function(b){b.addEventListener("click",function(){clinicSubmit(b.getAttribute("data-c"));});});
+}
+function clinicSubmit(given){
+  var s=CQ.sess;if(!s||s.answered)return;
+  s.answered=true;
+  var it=s.items[s.i],ok=given===it.code?1:0,ms=Date.now()-s.t0;
+  if(ok)s.ok++;
+  var row={m:"clinic",sub:it.id,dent:it.dent,target:it.code,given:given,ok:ok,ms:ms,run:s.run};
+  s.results.push(row);
+  if(s.mode==="assess")record(row);
+  $$("#clinic-opts .opt").forEach(function(b){var c=b.getAttribute("data-c");b.disabled=true;if(c===it.code)b.classList.add("ok");else if(c===given)b.classList.add("bad");});
+  $("#clinic-fb").innerHTML=ok
+    ?'<div class="fb ok"><b>✓ ถูกต้อง</b> '+it.code+" = "+esc(it.name)+'<p class="why">'+esc(it.explain)+"</p></div>"
+    :'<div class="fb bad"><b>✕ ยังไม่ถูก</b> ที่ตอบคือ '+esc(given)+" คำตอบที่ถูกคือ <b>"+it.code+"</b> = "+esc(it.name)+'<p class="why">'+esc(it.explain)+"</p></div>";
+  var nx=$("#clinic-next");nx.hidden=false;nx.textContent=(s.i+1>=s.items.length)?"ดูผลสรุป":"ข้อต่อไป";nx.focus();
+}
+$("#clinic-next").addEventListener("click",function(){
+  var s=CQ.sess;if(!s||!s.answered)return;
+  s.i++;if(s.i>=s.items.length)clinicFinish();else clinicShow();
+});
+$("#clinic-quit").addEventListener("click",function(){CQ.sess=null;$("#clinic-run").hidden=true;$("#clinic-done").hidden=true;$("#clinic-setup").hidden=false;});
+function clinicFinish(){
+  var s=CQ.sess;
+  $("#clinic-run").hidden=true;$("#clinic-done").hidden=false;
+  var h="<h2>ผลเคสคลินิก</h2><p class=\"big\"><b>"+s.ok+"</b> / "+s.items.length+" ข้อ · "+pct(s.ok,s.items.length)+"%</p>";
+  h+='<div class="tblwrap"><table class="tbl"><thead><tr><th>เคส</th><th>รหัสที่ถูก</th><th>คำตอบ</th><th>ผล</th></tr></thead><tbody>';
+  s.results.forEach(function(r,i){
+    h+="<tr"+(r.ok?"":' class="badrow"')+"><td>ข้อ "+(i+1)+" ("+(r.dent==="perm"?"ฟันแท้":"ฟันน้ำนม")+")</td><td class=\"c\">"+r.target+'</td><td class="c">'+r.given+"</td><td>"+(r.ok?"✓ ถูก":"✕ ผิด")+"</td></tr>";
+  });
+  h+="</tbody></table></div>";
+  h+=(s.mode==="assess"?'<p class="note">ผลชุดนี้ถูกบันทึกในหน้าสรุปผลแล้ว</p>':'<p class="note">โหมดฝึกไม่นับผลในหน้าสรุปผล</p>');
+  h+='<div class="row"><button class="btn primary" type="button" id="clinic-again">ทำอีกครั้ง</button>'+(s.mode==="assess"?'<button class="btn" type="button" id="clinic-toresult">ดูสรุปผลรวม</button>':"")+"</div>";
+  $("#clinic-done").innerHTML=h;
+  $("#clinic-again").addEventListener("click",function(){CQ.sess=null;$("#clinic-done").hidden=true;$("#clinic-setup").hidden=false;});
+  var b=$("#clinic-toresult");if(b)b.addEventListener("click",function(){show("result");});
+  window.scrollTo(0,0);
+}
+
+/* ---------- case module ---------- */
+var K={sess:null,chart:null};
+var CASE_LABELS={
+  perm:{D:"D",M:"M",F:"F",T:"DMFT",names:{D:"D (รหัส 1+2)",M:"M (รหัส 4)",F:"F (รหัส 3)",T:"DMFT"},badge:"ฟันแท้ · DMFT",badgeClass:"b",
+    note:"ซ้าย–ขวาคือของผู้ป่วย ซี่ที่ไม่ได้กล่าวถึงถือว่าปกติ (รหัส 0) ตรวจเฉพาะฟันแท้",
+    legend:"D นับรหัส 1 และ 2, M นับรหัส 4, F นับรหัส 3 ส่วนรหัส 0, 5, 6, 7, 8, 9 และ T ไม่นับ"},
+  prim:{D:"d",M:"e",F:"f",T:"deft",names:{D:"d (รหัส 1+2)",M:"e (รหัส 4)",F:"f (รหัส 3)",T:"deft"},badge:"ฟันน้ำนม · deft",badgeClass:"g",
+    note:"ซ้าย–ขวาคือของผู้ป่วย ซี่ที่ไม่ได้กล่าวถึงถือว่าปกติ (รหัส 0) ตรวจเฉพาะฟันน้ำนม — ระวังอย่าเผลอนับเป็นฟันแท้",
+    legend:"d นับรหัส 1 และ 2 (ผุ), e นับรหัส 4 (ถอนเพราะผุ), f นับรหัส 3 (อุดไม่ผุ) ส่วนรหัส 0, 5 (หลุด/ถอนสาเหตุอื่น), 6, 7, 8, 9 และ T ไม่นับ"}
+};
+function renderCaseList(dent){
+  var list=dent==="prim"?CASES_PRIM:CASES;
+  $("#case-list").innerHTML=list.map(function(c,i){
+    var lv=c.level==="ง่าย"?"g":(c.level==="ปานกลาง"?"b":"a");
+    return '<label class="choice"><input type="radio" name="case" value="'+c.id+'"'+(i===0?" checked":"")+'><span><b>'+esc(c.title)+'</b> <span class="tag '+lv+'">'+c.level+"</span><small>"+esc(c.intro)+"</small></span></label>";
+  }).join("");
+}
+renderCaseList("perm");
+$$('input[name="dent"]').forEach(function(r){r.addEventListener("change",function(){renderCaseList(r.value);});});
+$("#case-form").addEventListener("submit",function(e){e.preventDefault();caseStart();});
+function posText(f,style){
+  var t=BYCODE[f];
+  return style==="fdi"?"ซี่ "+f:t.full;
+}
+function caseStart(){
+  var fd=new FormData($("#case-form")),cs=null,style=fd.get("style")||"fdi",dent=fd.get("dent")||"perm";
+  var list=dent==="prim"?CASES_PRIM:CASES;
+  list.forEach(function(c){if(c.id===fd.get("case"))cs=c;});
+  if(!cs)cs=list[0];
+  var lab=CASE_LABELS[dent];
+  var given={};TEETH[dent].forEach(function(t){given[t.code]="0";});
+  var items=shuffle(cs.find.map(function(f){return {f:f.f,c:f.c,t:f.t,w:f.w,pos:style==="mixed"?(Math.random()<0.5?"fdi":"name"):style};}));
+  K.sess={cs:cs,dent:dent,style:style,mode:S.mode,items:items,given:given,sel:null,checked:false,t0:Date.now(),run:Date.now()};
+  $("#case-setup").hidden=true;$("#case-run").hidden=false;$("#case-review").innerHTML="";$("#case-msg").textContent="";
+  ["D","M","F","T"].forEach(function(k){var i=$("#in-"+k);i.value="";i.disabled=false;});
+  $("#case-title").textContent=cs.title;$("#case-intro").textContent=cs.intro;
+  $("#case-dentbadge").textContent=lab.badge;$("#case-dentbadge").className="tag "+lab.badgeClass;
+  $("#case-scopenote").textContent=lab.note;
+  $("#case-lblD").textContent=lab.D;$("#case-lblM").textContent=lab.M;$("#case-lblF").textContent=lab.F;$("#case-lblT").textContent=lab.T;
+  $("#case-dict").innerHTML=items.map(function(it){return "<li><b>"+esc(posText(it.f,it.pos))+"</b> — "+esc(it.t)+"</li>";}).join("");
+  K.chart=mountChart($("#case-chart"),dent,{nums:true,hint:false,aria:"full"});
+  K.chart.onPick=caseSelect;
+  buildPalette($("#case-pal"),K.sess.mode==="practice",caseSetCode);
+  $("#case-sel").textContent="แตะซี่ฟันบนแผนภาพเพื่อเลือก แล้วกดรหัสด้านล่าง หรือกดปุ่มตัวเลขบนคีย์บอร์ด (T สำหรับฟันหัก)";
+  $("#case-check").disabled=false;$("#case-clear").disabled=false;
+  window.scrollTo(0,0);
+}
+function caseSelect(code){
+  var k=K.sess;if(!k||k.checked)return;
+  k.sel=code;K.chart.clear("is-sel");K.chart.mark(code,"is-sel");updateSel();
+}
+function updateSel(){
+  var k=K.sess;if(!k)return;
+  if(!k.sel){return;}
+  var t=BYCODE[k.sel],c=k.given[k.sel];
+  $("#case-sel").innerHTML="เลือกซี่ <b>"+k.sel+"</b> ("+esc(t.full)+") · รหัสตอนนี้ <b>"+c+"</b>";
+  $$("#case-pal .codebtn").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-c")===c?"true":"false");});
+}
+function caseSetCode(c){
+  var k=K.sess;if(!k||k.checked)return;
+  if(!k.sel){$("#case-sel").textContent="เลือกซี่ฟันบนแผนภาพก่อน แล้วจึงกดรหัส";return;}
+  k.given[k.sel]=c;K.chart.setCode(k.sel,c);updateSel();
+}
+document.addEventListener("keydown",function(e){
+  var k=K.sess;
+  if(!k||k.checked||$("#view-case").hidden||$("#case-run").hidden)return;
+  var tag=(e.target.tagName||"").toUpperCase();
+  if(tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT"||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(/^[0-9]$/.test(e.key))caseSetCode(e.key);
+  else if(e.key==="t"||e.key==="T")caseSetCode("T");
+});
+$("#case-clear").addEventListener("click",function(){
+  var k=K.sess;if(!k||k.checked)return;
+  TEETH[k.dent].forEach(function(t){k.given[t.code]="0";K.chart.setCode(t.code,"0");});
+  updateSel();
+});
+$("#case-quit").addEventListener("click",function(){K.sess=null;$("#case-run").hidden=true;$("#case-setup").hidden=false;});
+function misplaceHint(code,g,exp,given){
+  var t=BYCODE[code],lr=partner(t,LR).code,ud=partner(t,UD).code;
+  if(exp[lr]===g&&given[lr]!==g)return "อาจสลับซ้าย–ขวา ซี่ที่ถูกคือ "+lr;
+  if(exp[ud]===g&&given[ud]!==g)return "อาจสลับบน–ล่าง ซี่ที่ถูกคือ "+ud;
+  var d=[-1,1];
+  for(var i=0;i<2;i++){var c2=""+t.q+(t.n+d[i]);if(BYCODE[c2]&&exp[c2]===g&&given[c2]!==g)return "อาจนับลำดับซี่คลาด 1 ซี่ ซี่ที่ถูกคือ "+c2;}
+  return "";
+}
+function evaluateCase(cs,given,typed,dent){
+  dent=dent||"perm";
+  var exp={},listed={};
+  TEETH[dent].forEach(function(t){exp[t.code]="0";});
+  cs.find.forEach(function(f){exp[f.f]=f.c;listed[f.f]=true;});
+  var rows=[],total=0,correct=0,extras=[];
+  cs.find.forEach(function(f){
+    var g=given[f.f],ok=g===f.c,kind=ok?"ok":(f.c==="0"?"extra":(g==="0"?"miss":"wrong"));
+    if(f.c!=="0"){total++;if(ok)correct++;}
+    rows.push({f:f.f,c:f.c,t:f.t,w:f.w,g:g,ok:ok,kind:kind,decoy:f.c==="0"});
+  });
+  TEETH[dent].forEach(function(t){
+    if(!listed[t.code]&&given[t.code]!==exp[t.code])extras.push({code:t.code,g:given[t.code],hint:misplaceHint(t.code,given[t.code],exp,given)});
+  });
+  var decoyBad=rows.filter(function(r){return r.decoy&&!r.ok;}).length;
+  var extraCount=extras.length+decoyBad;
+  var want=calcDMFT(exp),own=calcDMFT(given);
+  var fields=["D","M","F","T"].map(function(k){return {k:k,typed:typed[k],want:want[k],own:own[k],ok:typed[k]===want[k]};});
+  return {rows:rows,total:total,correct:correct,extras:extras,extraCount:extraCount,want:want,own:own,fields:fields,
+    score:pct(correct,total+extraCount)};
+}
+$("#case-check").addEventListener("click",function(){
+  var k=K.sess;if(!k||k.checked)return;
+  var typed={},bad=false;
+  ["D","M","F","T"].forEach(function(x){var v=$("#in-"+x).value.trim();if(!/^[0-9]+$/.test(v))bad=true;typed[x]=parseInt(v,10);});
+  if(bad){$("#case-msg").textContent="กรอกค่า D, M, F และ DMFT ให้ครบ (เป็นตัวเลข) ก่อนตรวจคำตอบ";return;}
+  $("#case-msg").textContent="";
+  k.checked=true;
+  var ev=evaluateCase(k.cs,k.given,typed,k.dent);
+  $("#case-check").disabled=true;$("#case-clear").disabled=true;
+  ["D","M","F","T"].forEach(function(x){$("#in-"+x).disabled=true;});
+  K.chart.clear("is-sel");
+  ev.rows.forEach(function(r){if(r.decoy){if(!r.ok){K.chart.mark(r.f,"r-bad");K.chart.badge(r.f,"✕");}}else{K.chart.mark(r.f,r.ok?"r-ok":"r-bad");K.chart.badge(r.f,r.ok?"✓":"✕");}});
+  ev.extras.forEach(function(x){K.chart.mark(x.code,"r-bad");K.chart.badge(x.code,"✕");});
+  if(k.mode==="assess"){
+    var base={m:"case",caseId:k.cs.id,dent:k.dent,style:k.style,run:k.run};
+    ev.rows.forEach(function(r){
+      record(Object.assign({},base,{sub:r.decoy?"decoy":"finding",item:k.cs.id+":"+r.f,target:r.c,given:r.g,ok:r.ok?1:0,err:r.ok?"":r.kind}));
+    });
+    ev.extras.forEach(function(x){record(Object.assign({},base,{sub:"extra",item:k.cs.id+":"+x.code,target:"0",given:x.g,ok:0,err:"extra"}));});
+    ev.fields.forEach(function(f){record(Object.assign({},base,{sub:"dmft",item:k.cs.id+":"+f.k,target:String(f.want),given:String(f.typed),ok:f.ok?1:0,err:f.ok?"":(f.typed===f.own?"coding":"counting")}));});
+    k.cs.dmftDone=true;
+  }
+  caseReviewHTML(k,ev);
+});
+var KIND={ok:"ถูก",miss:"ไม่ได้ลงรหัส",wrong:"รหัสผิด",extra:"ลงรหัสทั้งที่ควรเป็น 0"};
+function caseReviewHTML(k,ev){
+  var h='<h3>ผลการตรวจ</h3>';
+  h+='<p class="big">ลงถูก <b>'+ev.correct+"</b> จาก "+ev.total+" รายการที่ต้องลง · ลงเกินหรือผิดตำแหน่ง <b>"+ev.extraCount+"</b> ซี่ · ความแม่นยำการลงบันทึก "+ev.score+"%</p>";
+  h+='<div class="tblwrap"><table class="tbl"><thead><tr><th>ซี่</th><th>ผู้ตรวจบอก</th><th>รหัสที่ถูก</th><th>รหัสที่ลง</th><th>ผล</th></tr></thead><tbody>';
+  ev.rows.slice().sort(function(a,b){return a.f<b.f?-1:1;}).forEach(function(r){
+    h+="<tr"+(r.ok?"":' class="badrow"')+"><td><b>"+r.f+"</b><br><span class=\"note\">"+esc(BYCODE[r.f].full)+"</span></td><td>"+esc(r.t)+'<br><span class="note">'+esc(r.w)+'</span></td><td class="c">'+r.c+'</td><td class="c">'+r.g+"</td><td>"+(r.ok?"✓ ถูก":"✕ "+KIND[r.kind])+"</td></tr>";
+  });
+  ev.extras.forEach(function(x){
+    h+='<tr class="badrow"><td><b>'+x.code+'</b><br><span class="note">'+esc(BYCODE[x.code].full)+'</span></td><td>ไม่ได้ถูกกล่าวถึง (ปกติ)</td><td class="c">0</td><td class="c">'+x.g+"</td><td>✕ ลงรหัสเกิน"+(x.hint?'<br><span class="note">'+esc(x.hint)+"</span>":"")+"</td></tr>";
+  });
+  h+="</tbody></table></div>";
+  var lab=CASE_LABELS[k.dent||"perm"];
+  h+='<h3>การคำนวณ '+lab.T+'</h3><div class="tblwrap"><table class="tbl"><thead><tr><th>ค่า</th><th>ที่กรอก</th><th>ที่ถูกต้อง</th><th>คำนวณจากแผนภาพที่ลงเอง</th><th>ผล</th></tr></thead><tbody>';
+  ev.fields.forEach(function(f){
+    var why="";
+    if(!f.ok)why=(f.typed===f.own)?'<br><span class="note">ตรงกับแผนภาพของท่าน ความคลาดมาจากรหัสที่ลง</span>':'<br><span class="note">ไม่ตรงกับแผนภาพของท่านเอง ตรวจวิธีนับอีกครั้ง</span>';
+    h+="<tr"+(f.ok?"":' class="badrow"')+"><td>"+lab.names[f.k]+'</td><td class="c">'+f.typed+'</td><td class="c">'+f.want+'</td><td class="c">'+f.own+"</td><td>"+(f.ok?"✓ ถูก":"✕ ผิด")+why+"</td></tr>";
+  });
+  h+="</tbody></table></div>";
+  var t=ev.fields[3].typed,sum=ev.fields[0].typed+ev.fields[1].typed+ev.fields[2].typed;
+  if(t!==sum)h+='<p class="fb bad">'+lab.T+' ที่กรอก ('+t+") ไม่เท่ากับ "+lab.D+"+"+lab.M+"+"+lab.F+" ที่กรอก ("+sum+")</p>";
+  h+='<p class="note">'+lab.legend+(k.mode==="assess"?" · ผลกรณีนี้ถูกบันทึกในหน้าสรุปผลแล้ว":" · โหมดฝึกไม่นับผลในหน้าสรุปผล")+"</p>";
+  h+='<div class="row"><button class="btn primary" type="button" id="case-again">ทำกรณีอื่น</button>'+(k.mode==="assess"?'<button class="btn" type="button" id="case-toresult">ดูสรุปผลรวม</button>':"")+"</div>";
+  $("#case-review").innerHTML=h;
+  $("#case-again").addEventListener("click",function(){K.sess=null;$("#case-run").hidden=true;$("#case-setup").hidden=false;window.scrollTo(0,0);});
+  var b=$("#case-toresult");if(b)b.addEventListener("click",function(){show("result");});
+  $("#case-review").scrollIntoView&&$("#case-review").scrollIntoView({block:"start"});
+}
+
+/* ---------- results ---------- */
+function stats(rows){var ok=rows.filter(function(r){return r.ok;}).length;return {n:rows.length,ok:ok,p:pct(ok,rows.length)};}
+function caseRuns(cs,dent){
+  var runs={};
+  cs.forEach(function(r){
+    if(dent&&(r.dent||"perm")!==dent)return;
+    var R=runs[r.run]||(runs[r.run]={run:r.run,caseId:r.caseId,dent:r.dent||"perm",style:r.style,total:0,ok:0,extra:0,dm:0,dmOk:0,t:r.t});
+    if(r.sub==="finding"){R.total++;if(r.ok)R.ok++;}
+    else if(r.sub==="decoy"){if(!r.ok)R.extra++;}
+    else if(r.sub==="extra"){R.extra++;}
+    else if(r.sub==="dmft"){R.dm++;if(r.ok)R.dmOk++;}
+  });
+  return Object.keys(runs).map(function(k){return runs[k];}).sort(function(a,b){return a.t-b.t;});
+}
+function caseTitle(id){var t=id;CASES.concat(CASES_PRIM).forEach(function(c){if(c.id===id)t=c.title;});return t;}
+function heatColor(p){return "hsl("+Math.round(p*130)+",55%,72%)";}
+function overallRow(label,detail,st){
+  var g=grade(st.p);
+  return "<tr><td><b>"+label+"</b><br><span class=\"note\">"+detail+"</span></td><td>"+(st.n?st.ok+" / "+st.n:"—")+"</td><td>"+(st.p===null?"—":st.p+"%")+"</td><td style=\"min-width:140px\">"+meter(st.p)+'</td><td><span class="tag '+g.c+'">'+g.t+"</span></td></tr>";
+}
+function buildSuggestions(fdi,code,cs){
+  var out=[];
+  var ec={};fdi.forEach(function(r){if(!r.ok&&r.err)ec[r.err]=(ec[r.err]||0)+1;});
+  if(ec.lr)out.push({t:"พบการสลับซ้าย–ขวา "+ec.lr+" ข้อ: ทบทวนว่าซ้าย–ขวาคือของผู้ป่วย ด้านขวาของผู้ป่วยอยู่ทางซ้ายมือของแผนภาพ"});
+  if(ec.ud)out.push({t:"พบการสลับบน–ล่าง "+ec.ud+" ข้อ: ควอดแรนท์ 1–2 อยู่ขากรรไกรบน 3–4 อยู่ขากรรไกรล่าง (ฟันน้ำนม 5–6 บน 7–8 ล่าง)"});
+  if(ec.pos)out.push({t:"พบการนับลำดับซี่ผิดภายในควอดแรนท์ "+ec.pos+" ข้อ: นับจากเส้นกึ่งกลางออกไปด้านหลัง 1 = ตัดกลาง ... 8 = กรามซี่ที่ 3"});
+  if(ec.diag||ec.both)out.push({t:"พบข้อที่ผิดทั้งควอดแรนท์และลำดับซี่ "+((ec.diag||0)+(ec.both||0))+" ข้อ: ลองฝึกโหมด “ชื่อฟัน → คลิกตำแหน่ง” ซ้ำโดยพูดชื่อฟันออกเสียงก่อนคลิก"});
+  if(ec.invalid)out.push({t:"มีการตอบรหัสที่ไม่มีอยู่จริง "+ec.invalid+" ข้อ: ฟันแท้ใช้หลักแรก 1–4 และหลักหลัง 1–8 ส่วนฟันน้ำนมใช้หลักแรก 5–8 และหลักหลัง 1–5"});
+  confusions(code).slice(0,3).forEach(function(x){
+    var same=stageOf(x.t)===stageOf(x.g);
+    out.push({t:"รหัส "+icdasLabel(x.t)+" ถูกตอบเป็น "+icdasLabel(x.g)+" "+x.n+" ครั้ง"+(same?" (สับสนในระยะเดียวกัน)":" (คนละระยะความรุนแรง)")+": "+CBY_ICDAS[x.t].d,guide:x.t});
+  });
+  var extra=0,dmc=0,dmn=0,miss=0,wrong=0;
+  cs.forEach(function(r){
+    if(r.sub==="extra"||(r.sub==="decoy"&&!r.ok))extra++;
+    if(r.sub==="dmft"&&!r.ok){if(r.err==="coding")dmc++;else dmn++;}
+    if(r.sub==="finding"&&!r.ok){if(r.given==="0")miss++;else wrong++;}
+  });
+  if(miss)out.push({t:"มีรายการที่ผู้ตรวจบอกแต่ไม่ได้ลงบันทึก "+miss+" รายการ: ตรวจรายการที่ผู้ตรวจบอกให้ครบก่อนกดตรวจคำตอบ"});
+  if(wrong)out.push({t:"ลงรหัสผิดในซี่ที่ถูกตำแหน่ง "+wrong+" รายการ: ทบทวนตารางรหัสสภาพฟัน โดยเฉพาะผุใต้ sealant ฟันอุดชั่วคราว และฟันเหลือแต่ราก (รหัส 1)"});
+  if(extra)out.push({t:"ลงรหัสในซี่ที่ควรเป็น 0 หรือผิดตำแหน่ง "+extra+" ซี่: ตรวจเลข FDI ก่อนลงรหัสทุกครั้ง และระวังรอยขาวขุ่นหรือคราบสีที่ไม่เป็นโพรง ซึ่งเป็นรหัส 0"});
+  if(dmc)out.push({t:"ค่า D/M/F/DMFT คลาด "+dmc+" ช่องเพราะรหัสที่ลงไม่ตรง: แก้ที่การลงรหัสก่อน"});
+  if(dmn)out.push({t:"ค่า D/M/F/DMFT คลาด "+dmn+" ช่องจากวิธีนับ: D = รหัส 1+2, M = รหัส 4, F = รหัส 3 ส่วนรหัสอื่นไม่นับ"});
+  return out;
+}
+function caseAgg(runs){
+  var cc=0,ct=0,dmOk=0,dmN=0;
+  runs.forEach(function(r){cc+=r.ok;ct+=r.total+r.extra;dmOk+=r.dmOk;dmN+=r.dm;});
+  return {st:{n:ct,ok:cc,p:pct(cc,ct)},sd:{n:dmN,ok:dmOk,p:pct(dmOk,dmN)},n:runs.length};
+}
+function caseToothAgg(rows){
+  var agg={};
+  rows.forEach(function(r){
+    if(r.sub!=="finding"&&r.sub!=="decoy"&&r.sub!=="extra")return;
+    var code=(r.item||"").split(":").pop();
+    if(!code||!BYCODE[code])return;
+    var a=agg[code]||(agg[code]={n:0,ok:0});
+    a.n++;if(r.ok)a.ok++;
+  });
+  return agg;
+}
+function summaryText(){
+  var L=S.log,fdi=L.filter(function(r){return r.m==="fdi";}),code=L.filter(function(r){return r.m==="code";}),clinic=L.filter(function(r){return r.m==="clinic";}),cs=L.filter(function(r){return r.m==="case";});
+  var runsP=caseRuns(cs,"perm"),runsD=caseRuns(cs,"prim"),fs=stats(fdi),cd=stats(code),cl=stats(clinic);
+  var ap=caseAgg(runsP),ad=caseAgg(runsD);
+  var lines=["สรุปผลฝึกและประเมินรหัสฟัน FDI, DMFT และ deft","ชื่อ: "+(S.name||"-")+"  รหัสนักศึกษา: "+(S.sid||"-"),"วันที่: "+new Date().toLocaleString("th-TH"),""];
+  lines.push("รหัสฟัน FDI: "+(fs.n?fs.ok+"/"+fs.n+" ("+fs.p+"%)":"ยังไม่ได้ทำ"));
+  lines.push("รหัสสภาพฟัน: "+(cd.n?cd.ok+"/"+cd.n+" ("+cd.p+"%)":"ยังไม่ได้ทำ"));
+  lines.push("เคสคลินิก: "+(cl.n?cl.ok+"/"+cl.n+" ("+cl.p+"%)":"ยังไม่ได้ทำ"));
+  lines.push("กรณีศึกษาฟันแท้ (DMFT) การลงบันทึก: "+(ap.n?ap.st.ok+"/"+ap.st.n+" ("+ap.st.p+"%) จาก "+ap.n+" กรณี":"ยังไม่ได้ทำ"));
+  lines.push("กรณีศึกษาฟันแท้ (DMFT) การคำนวณ: "+(ap.sd.n?ap.sd.ok+"/"+ap.sd.n+" ช่อง ("+ap.sd.p+"%)":"ยังไม่ได้ทำ"));
+  lines.push("กรณีศึกษาฟันน้ำนม (deft) การลงบันทึก: "+(ad.n?ad.st.ok+"/"+ad.st.n+" ("+ad.st.p+"%) จาก "+ad.n+" กรณี":"ยังไม่ได้ทำ"));
+  lines.push("กรณีศึกษาฟันน้ำนม (deft) การคำนวณ: "+(ad.sd.n?ad.sd.ok+"/"+ad.sd.n+" ช่อง ("+ad.sd.p+"%)":"ยังไม่ได้ทำ"));
+  return lines.join("\n");
+}
+function csvText(){
+  var head=["เวลา","ชื่อ","รหัสนักศึกษา","โมดูล","ประเภท","รายการ","คำตอบที่ถูก","คำตอบของผู้เรียน","ถูก(1/0)","ประเภทข้อผิดพลาด","เวลาที่ใช้(วินาที)"];
+  var q=function(v){v=(v===undefined||v===null)?"":String(v);return '"'+v.replace(/"/g,'""')+'"';};
+  var rows=S.log.map(function(r){
+    return [new Date(r.t).toISOString(),S.name,S.sid,r.m,r.sub||"",r.item||r.target,r.target,r.given,r.ok,r.err||"",r.ms?(r.ms/1000).toFixed(1):""].map(q).join(",");
+  });
+  return "\ufeff"+head.map(q).join(",")+"\n"+rows.join("\n");
+}
+function renderResult(){
+  var box=$("#result-body"),L=S.log;
+  if(!L.length){
+    box.innerHTML='<div class="empty"><p><b>ยังไม่มีผลจากโหมดประเมิน</b></p><p class="note">ทำแบบฝึกในโหมดประเมินอย่างน้อยหนึ่งชุด แล้วผลจะมาแสดงที่นี่ โหมดฝึกไม่ถูกนับ</p><div class="row"><button class="btn primary" type="button" data-go="fdi">ไปฝึกรหัส FDI</button><button class="btn" type="button" data-go="code">ไปรหัสสภาพฟัน</button><button class="btn" type="button" data-go="clinic">ไปเคสคลินิก</button><button class="btn" type="button" data-go="case">ไปกรณีศึกษา</button></div></div>';
+    $$("[data-go]",box).forEach(function(b){b.addEventListener("click",function(){show(b.getAttribute("data-go"));});});
+    return;
+  }
+  var fdi=L.filter(function(r){return r.m==="fdi";}),code=L.filter(function(r){return r.m==="code";}),clinic=L.filter(function(r){return r.m==="clinic";}),cs=L.filter(function(r){return r.m==="case";});
+  var runsP=caseRuns(cs,"perm"),runsD=caseRuns(cs,"prim"),ap=caseAgg(runsP),ad=caseAgg(runsD),cl=stats(clinic);
+  var h='<p class="lead">'+esc(S.name||"ไม่ได้ระบุชื่อ")+(S.sid?" · "+esc(S.sid):"")+" · นับเฉพาะผลจากโหมดประเมิน</p>";
+  h+='<div class="sheet"><div class="tblwrap"><table class="tbl"><thead><tr><th>หัวข้อ</th><th>ถูก</th><th>ร้อยละ</th><th></th><th>ระดับ</th></tr></thead><tbody>';
+  h+=overallRow("รหัสฟัน FDI","จำนวนข้อที่ตอบถูก (ความคล่องแคล่วเรื่องตำแหน่ง ไม่ใช่ความแม่นยำทางคลินิก)",stats(fdi));
+  h+=overallRow("รหัสสภาพฟัน","จำนวนข้อที่ตอบถูก — ตัวชี้วัดหลักด้านความแม่นยำทางคลินิก",stats(code));
+  h+=overallRow("เคสคลินิก","จำนวนข้อที่ตอบถูกจาก 6 เคส",cl);
+  h+=overallRow("กรณีศึกษาฟันแท้ (DMFT): ลงบันทึก","รายการที่ลงถูก ÷ (รายการที่ต้องลง + ซี่ที่ลงเกิน)",ap.st);
+  h+=overallRow("กรณีศึกษาฟันแท้ (DMFT): คำนวณ","ช่อง D, M, F, DMFT ที่ถูก",ap.sd);
+  h+=overallRow("กรณีศึกษาฟันน้ำนม (deft): ลงบันทึก","รายการที่ลงถูก ÷ (รายการที่ต้องลง + ซี่ที่ลงเกิน)",ad.st);
+  h+=overallRow("กรณีศึกษาฟันน้ำนม (deft): คำนวณ","ช่อง d, e, f, deft ที่ถูก",ad.sd);
+  h+='</tbody></table></div><p class="note" style="margin:10px 0 0">เกณฑ์ระดับ: '+CUTOFFS[0]+"% ขึ้นไปแม่นยำมาก · "+CUTOFFS[1]+"% ดี · "+CUTOFFS[2]+"% พอใช้ · ต่ำกว่านั้นควรฝึกเพิ่ม (ค่าตั้งต้น ผู้สอนปรับได้) · ในงานตรวจชุมชนจริง ความแม่นยำของรหัสสภาพฟันและกรณีศึกษาสำคัญไม่น้อยไปกว่าความเร็วในการหาตำแหน่งฟัน</p></div>";
+
+  var sug=buildSuggestions(fdi,code,cs);
+  if(sug.length)h+='<h3>ข้อที่ควรทบทวน</h3><ul class="plain">'+sug.map(function(x){return "<li>"+esc(x.t)+(x.guide?' · <button type="button" class="linklike" data-guide="'+x.guide+'">ทบทวนในคู่มือ ICDAS</button>':"")+"</li>";}).join("")+"</ul>";
+
+  if(fdi.length){
+    h+="<h3>รหัสฟัน FDI</h3>"+fdiSummaryHTML(fdi);
+    ["perm","prim"].forEach(function(d){
+      var r=fdi.filter(function(x){return (x.dent||"perm")===d;});
+      if(r.length)h+='<h3>แผนที่ความแม่นยำรายซี่ ('+(d==="perm"?"ฟันแท้":"ฟันน้ำนม")+')</h3><div class="legend"><span>0%</span><i></i><span>100%</span><span>· ซี่สีขาวยังไม่ถูกถาม</span></div><div class="chartbox" id="heat-'+d+'"></div>';
+    });
+  }
+  if(code.length)h+="<h3>รหัสสภาพฟัน</h3>"+codeSummaryHTML(code);
+  if(clinic.length){
+    h+='<h3>เคสคลินิก</h3><p class="big"><b>'+cl.ok+"</b> / "+cl.n+" ข้อ · "+cl.p+'%</p><div class="tblwrap"><table class="tbl"><thead><tr><th>เคส</th><th>รหัสที่ถูก</th><th>คำตอบล่าสุด</th><th>ผล</th></tr></thead><tbody>';
+    CLINIC.forEach(function(it){
+      var r=clinic.filter(function(x){return x.sub===it.id;});if(!r.length)return;
+      var last=r[r.length-1];
+      h+="<tr"+(last.ok?"":' class="badrow"')+"><td>"+esc(it.name)+'</td><td class="c">'+it.code+'</td><td class="c">'+last.given+"</td><td>"+(last.ok?"✓ ถูก":"✕ ผิด")+"</td></tr>";
+    });
+    h+="</tbody></table></div>";
+  }
+  if(cs.length){
+    h+="<h3>กรณีศึกษา: แผนที่ความแม่นยำรายซี่</h3>";
+    ["perm","prim"].forEach(function(d){
+      var r=cs.filter(function(x){return (x.dent||"perm")===d;});
+      if(r.length)h+='<p class="note" style="margin:0 0 4px">'+(d==="perm"?"ฟันแท้ (DMFT)":"ฟันน้ำนม (deft)")+'</p><div class="legend"><span>0%</span><i></i><span>100%</span><span>· ซี่สีขาวยังไม่เคยถูกถามในกรณีศึกษา</span></div><div class="chartbox" id="caseheat-'+d+'"></div>';
+    });
+  }
+  [["ฟันแท้ (DMFT)",runsP],["ฟันน้ำนม (deft)",runsD]].forEach(function(pair){
+    var label=pair[0],runs=pair[1];
+    if(!runs.length)return;
+    h+='<h3>กรณีศึกษา: '+label+'</h3><div class="tblwrap"><table class="tbl"><thead><tr><th>กรณี</th><th>ลงถูก</th><th>ลงเกิน</th><th>ดัชนีถูก</th><th>ความแม่นยำ</th></tr></thead><tbody>';
+    runs.forEach(function(r){
+      var p=pct(r.ok,r.total+r.extra);
+      h+="<tr><td>"+esc(caseTitle(r.caseId))+'<br><span class="note">'+esc(new Date(r.t).toLocaleString("th-TH"))+"</span></td><td>"+r.ok+" / "+r.total+"</td><td>"+r.extra+"</td><td>"+r.dmOk+" / "+r.dm+"</td><td>"+(p===null?"—":p+"%")+"</td></tr>";
+    });
+    h+="</tbody></table></div>";
+  });
+  h+='<h3 class="noprint">ส่งผลให้ผู้สอน</h3><div class="noprint"><p class="note">เลือกอย่างใดอย่างหนึ่ง ตามที่ผู้สอนกำหนด</p><div class="row"><button class="btn primary" type="button" id="res-csv">ดาวน์โหลดไฟล์ CSV</button><button class="btn" type="button" id="res-print">พิมพ์หรือบันทึกเป็น PDF</button><button class="btn" type="button" id="res-copy">คัดลอกข้อความสรุป</button></div><textarea id="res-text" class="copybox" readonly aria-label="ข้อความสรุป"></textarea><div class="row"><button class="btn quiet" type="button" id="res-reset">ล้างผลทั้งหมด</button></div></div>';
+  box.innerHTML=h;
+  wireGoButtons(box);
+  wireGuideLinks(box);
+
+  ["perm","prim"].forEach(function(d){
+    var host=$("#heat-"+d);if(!host)return;
+    var ch=mountChart(host,d,{nums:true,hint:false,aria:"full"}),agg={};
+    fdi.filter(function(x){return (x.dent||"perm")===d;}).forEach(function(r){var a=agg[r.target]||(agg[r.target]={n:0,ok:0});a.n++;if(r.ok)a.ok++;});
+    Object.keys(agg).forEach(function(c){ch.fill(c,heatColor(agg[c].ok/agg[c].n));});
+    ch.onPick=function(code){var a=agg[code],t=BYCODE[code];ch.clear("is-sel");ch.mark(code,"is-sel");var el=host.parentNode.querySelector(".heatinfo");if(!el){el=document.createElement("p");el.className="note heatinfo";el.setAttribute("aria-live","polite");host.parentNode.insertBefore(el,host.nextSibling);}el.textContent=code+" "+t.full+": "+(a?"ถูก "+a.ok+" จาก "+a.n+" ครั้ง":"ยังไม่ถูกถาม");};
+  });
+  ["perm","prim"].forEach(function(d){
+    var host=$("#caseheat-"+d);if(!host)return;
+    var ch=mountChart(host,d,{nums:true,hint:false,aria:"full"});
+    var agg=caseToothAgg(cs.filter(function(x){return (x.dent||"perm")===d;}));
+    Object.keys(agg).forEach(function(c){ch.fill(c,heatColor(agg[c].ok/agg[c].n));});
+    ch.onPick=function(code){var a=agg[code],t=BYCODE[code];ch.clear("is-sel");ch.mark(code,"is-sel");var el=host.parentNode.querySelector(".heatinfo");if(!el){el=document.createElement("p");el.className="note heatinfo";el.setAttribute("aria-live","polite");host.parentNode.insertBefore(el,host.nextSibling);}el.textContent=code+" "+t.full+": "+(a?"ถูก "+a.ok+" จาก "+a.n+" ครั้ง":"ยังไม่ถูกถามในกรณีศึกษา");};
+  });
+  $("#res-text").value=summaryText();
+  $("#res-csv").addEventListener("click",function(){
+    var blob=new Blob([csvText()],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);a.download="fdi-dmft-"+(S.sid||"result")+".csv";document.body.appendChild(a);a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);
+  });
+  $("#res-print").addEventListener("click",function(){window.print();});
+  $("#res-copy").addEventListener("click",function(){
+    var ta=$("#res-text");ta.focus();ta.select();
+    var done=false;
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ta.value);done=true;}else{done=document.execCommand("copy");}}catch(e){}
+    $("#res-copy").textContent=done?"คัดลอกแล้ว":"เลือกข้อความแล้ว กด Ctrl+C";
+  });
+  var armed=false,rb=$("#res-reset");
+  rb.addEventListener("click",function(){
+    if(!armed){armed=true;rb.textContent="กดอีกครั้งเพื่อยืนยันการล้างผลทั้งหมด";setTimeout(function(){armed=false;if(rb.isConnected)rb.textContent="ล้างผลทั้งหมด";},5000);return;}
+    S.log=[];persist();renderResult();
+  });
+}
+
+/* ---------- init ---------- */
+applyMode();
+introMount("perm");
+if(location.hash==="#debug"){window.__app={S:S,F:F,C:C,K:K,CASES:CASES,CASES_PRIM:CASES_PRIM,ITEMS_ICDAS:ITEMS_ICDAS,CODES_ICDAS:CODES_ICDAS,BYCODE:BYCODE,TEETH:TEETH,calcDMFT:calcDMFT,evaluateCase:evaluateCase,fdiErr:fdiErr,show:show,mountChart:mountChart,caseToothAgg:caseToothAgg};}
+})();
+</script>
+</body>
+</html>
